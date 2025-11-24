@@ -70,20 +70,20 @@ export function PreGeneratedVoiceAgent({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const messageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Position classes
+  // Position classes - responsive
   const positionClasses = {
-    'bottom-right': 'bottom-6 right-6',
-    'bottom-left': 'bottom-6 left-6',
-    'top-right': 'top-40 right-6',
-    'top-left': 'top-40 left-6'
+    'bottom-right': 'bottom-4 right-4 sm:bottom-6 sm:right-6',
+    'bottom-left': 'bottom-4 left-4 sm:bottom-6 sm:left-6',
+    'top-right': 'top-20 right-4 sm:top-40 sm:right-6',
+    'top-left': 'top-20 left-4 sm:top-40 sm:left-6'
   };
 
-  // Message bubble position (relative to bot)
+  // Message bubble position (relative to bot) - responsive
   const messageBubblePosition = {
-    'bottom-right': 'bottom-52 right-20',
-    'bottom-left': 'bottom-52 left-20',
-    'top-right': 'top-52 right-20',
-    'top-left': 'top-52 left-20'
+    'bottom-right': 'bottom-32 right-4 sm:bottom-52 sm:right-20',
+    'bottom-left': 'bottom-32 left-4 sm:bottom-52 sm:left-20',
+    'top-right': 'top-32 right-4 sm:top-52 sm:right-20',
+    'top-left': 'top-32 left-4 sm:top-52 sm:left-20'
   };
 
   // Function to trigger Lottie animation
@@ -344,9 +344,9 @@ export function PreGeneratedVoiceAgent({
               exit={{ opacity: 0 }}
             />
 
-            {/* Speech Bubble */}
+            {/* Speech Bubble - Responsive */}
             <motion.div
-              className={`fixed ${messageBubblePosition[position]} z-[9999] max-w-sm`}
+              className={`fixed ${messageBubblePosition[position]} z-[9999] max-w-[280px] sm:max-w-sm`}
               initial={{ opacity: 0, scale: 0.8, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.8, y: 20 }}
@@ -358,9 +358,9 @@ export function PreGeneratedVoiceAgent({
                 damping: 25
               }}
             >
-              {/* Speech bubble container */}
+              {/* Speech bubble container - Responsive padding */}
               <div
-                className="relative rounded-2xl shadow-2xl p-5 pr-10"
+                className="relative rounded-2xl shadow-2xl p-4 pr-9 sm:p-5 sm:pr-10"
                 style={{
                   background: 'linear-gradient(135deg, #8B7FF8 0%, #7B6FE8 50%, #6B5FD8 100%)',
                   boxShadow: '0 8px 32px rgba(107, 95, 216, 0.4), 0 4px 16px rgba(139, 127, 248, 0.3)'
@@ -375,9 +375,9 @@ export function PreGeneratedVoiceAgent({
                   <X className="w-5 h-5" />
                 </button>
 
-                {/* Message text */}
+                {/* Message text - Responsive font size */}
                 <motion.p
-                  className="font-semibold text-base leading-relaxed"
+                  className="font-semibold text-sm sm:text-base leading-relaxed"
                   style={{
                     color: '#ffffff',
                     textShadow: '0 2px 4px rgba(0, 0, 0, 0.15)'
@@ -444,9 +444,9 @@ export function PreGeneratedVoiceAgent({
               </>
             )}
 
-            {/* Main Lottie Animation Container */}
+            {/* Main Lottie Animation Container - Responsive Size */}
             <motion.div
-              className={`relative w-40 h-40 rounded-full overflow-hidden shadow-2xl cursor-pointer ${
+              className={`relative w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-full overflow-hidden shadow-2xl cursor-pointer ${
                 waitingForInteraction ? 'animate-bounce' : ''
               }`}
               style={{

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Calendar,
@@ -29,6 +29,14 @@ type TabType =
 
 const StudyPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('calendar');
+
+  // Scroll to top when tab changes
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }, [activeTab]);
 
   const tabs = [
     {

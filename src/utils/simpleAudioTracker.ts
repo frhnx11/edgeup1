@@ -84,11 +84,21 @@ class SimpleAudioTracker {
     const trackingKey = `${userType}:${messageKey}`;
 
     console.log('🎵 SimpleAudioTracker: Now playing:', trackingKey);
+
+    // If switching to a different message, clear the previous one from tracking
+    // This allows tab switches to play new audio
+    if (this.currentlyPlaying && this.currentlyPlaying !== messageKey) {
+      const prevTrackingKey = `${userType}:${this.currentlyPlaying}`;
+      this.playedThisPageLoad.delete(prevTrackingKey);
+      console.log('🔄 SimpleAudioTracker: Cleared previous tracking for:', prevTrackingKey);
+    }
+
     this.playedThisPageLoad.add(trackingKey);
     this.currentlyPlaying = messageKey;
   }
 
   markAsStopped(): void {
+    console.log('⏹️ SimpleAudioTracker: Stopped playing:', this.currentlyPlaying);
     this.currentlyPlaying = null;
   }
 

@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Target, FileText, ClipboardCheck } from 'lucide-react';
 import { DashboardLayout } from '../../../../layouts/DashboardLayout';
-// Removed PreGeneratedVoiceAgent - using ElevenLabs AIVoiceAgent from DashboardLayout
+import { PreGeneratedVoiceAgent } from '../../../../components/upsc/common/PreGeneratedVoiceAgent';
+import { PAGE_VOICE_MESSAGES } from '../../../../config/voiceMessages';
 import { SkillsPage } from './SkillsPage';
 import { QuestionGenerationPage } from './QuestionGenerationPage';
 import { ExamCorrectionPage } from './ExamCorrectionPage';
@@ -11,6 +12,26 @@ type TabType = 'skills' | 'question-generation' | 'exam-correction';
 
 const DevelopmentPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('skills');
+  const [showTabAudio, setShowTabAudio] = useState(false);
+
+  // Show tab-specific audio after initial mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowTabAudio(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Get voice message for current tab
+  const currentVoiceMessage = PAGE_VOICE_MESSAGES[activeTab] || PAGE_VOICE_MESSAGES['skills'];
+
+  // Scroll to top when tab changes
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }, [activeTab]);
 
   const tabs = [
     {
@@ -99,10 +120,18 @@ const DevelopmentPage: React.FC = () => {
         >
           {renderContent()}
         </motion.div>
+
+        {/* Tab-specific voice agent - plays when tabs change */}
+        {showTabAudio && (
+          <PreGeneratedVoiceAgent
+            key={activeTab}
+            messageKey={currentVoiceMessage.key}
+            message={currentVoiceMessage.text}
+            autoPlay={true}
+            position="bottom-right"
+          />
+        )}
       </div>
-
-      {/* AI Voice Agent is provided by DashboardLayout with ElevenLabs */}
-
     </DashboardLayout>
   );
 };

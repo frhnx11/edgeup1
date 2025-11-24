@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart3, Award, Gauge, ClipboardList, Trophy } from 'lucide-react';
 import { DashboardLayout } from '../../../../layouts/DashboardLayout';
-// Removed PreGeneratedVoiceAgent - using ElevenLabs AIVoiceAgent from DashboardLayout
+import { PreGeneratedVoiceAgent } from '../../../../components/upsc/common/PreGeneratedVoiceAgent';
+import { PAGE_VOICE_MESSAGES } from '../../../../config/voiceMessages';
 import AdvancedAnalyticsPage from './AdvancedAnalyticsPage';
 import LeaderboardPage from './LeaderboardPage';
 import ReadinessScorePage from './ReadinessScorePage';
@@ -13,6 +14,26 @@ type TabType = 'advanced-analytics' | 'leaderboard' | 'readiness-score' | 'test-
 
 const AcademicAchieverPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('advanced-analytics');
+  const [showTabAudio, setShowTabAudio] = useState(false);
+
+  // Show tab-specific audio after initial mount (to avoid conflict with route audio)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowTabAudio(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Get voice message for current tab
+  const currentVoiceMessage = PAGE_VOICE_MESSAGES[activeTab] || PAGE_VOICE_MESSAGES['advanced-analytics'];
+
+  // Scroll to top when tab changes
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }, [activeTab]);
 
   const tabs = [
     {
@@ -121,10 +142,18 @@ const AcademicAchieverPage: React.FC = () => {
         >
           {renderContent()}
         </motion.div>
+
+        {/* Tab-specific voice agent - plays when tabs change */}
+        {showTabAudio && (
+          <PreGeneratedVoiceAgent
+            key={activeTab}
+            messageKey={currentVoiceMessage.key}
+            message={currentVoiceMessage.text}
+            autoPlay={true}
+            position="bottom-right"
+          />
+        )}
       </div>
-
-      {/* AI Voice Agent is provided by DashboardLayout with ElevenLabs */}
-
     </DashboardLayout>
   );
 };

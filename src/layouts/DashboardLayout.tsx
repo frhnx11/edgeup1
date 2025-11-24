@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, Menu } from 'lucide-react';
 import { Sidebar } from '../components/upsc/common/Sidebar';
 import { EUstaadConsentModal } from '../components/upsc/common/eUstaadConsentModal';
 import { useEUstaadTracking } from '../hooks/useEUstaadTracking';
@@ -18,6 +18,30 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { consentGiven, isVisible, giveConsent } = useEUstaadStore();
   const [showConsentModal, setShowConsentModal] = useState(false);
   const [showWelcomeMessage, setShowWelcomeMessage] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      setSidebarOpen(!mobile); // Closed by default on mobile
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth' // Smooth scroll animation
+    });
+  }, [location.pathname]);
 
   // Get user's personality type
   const userStudentType = localStorage.getItem('userStudentType') || 'social-learner';
@@ -27,12 +51,22 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     return getVoiceMessageForRoute(location.pathname);
   }, [location.pathname]);
 
+  // Check if current page has tab-specific audio (to avoid duplicate agents)
+  // Only hide on pages with tabs, not on dashboards
+  const hasTabSpecificAudio =
+    location.pathname.includes('/study') ||
+    location.pathname.includes('/development') ||
+    location.pathname.includes('/personal') ||
+    (location.pathname.includes('/academic-achiever') && !location.pathname.endsWith('/dashboard')) ||
+    (location.pathname.includes('/social-learner') && !location.pathname.endsWith('/dashboard'));
+
   // Log route changes
   useEffect(() => {
     console.log('📍 DashboardLayout v6.12: Route changed to:', location.pathname);
     console.log('🎵 Voice message key:', voiceMessage.key);
     console.log('👤 User type:', userStudentType);
-  }, [location.pathname, voiceMessage.key, userStudentType]);
+    console.log('🎭 Has tab-specific audio:', hasTabSpecificAudio);
+  }, [location.pathname, voiceMessage.key, userStudentType, hasTabSpecificAudio]);
 
   // Initialize activity tracking
   useEUstaadTracking();
@@ -84,18 +118,36 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
-      <main className="flex-1 ml-72 p-6 md:p-8 overflow-x-hidden">
-        {children}
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      {/* Hamburger Menu Button - Mobile Only */}
+      {isMobile && (
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="fixed top-4 left-4 z-30 p-3 bg-white rounded-lg shadow-lg lg:hidden hover:bg-gray-50 transition-colors"
+        >
+          <Menu className="w-6 h-6 text-gray-700" />
+        </button>
+      )}
+
+      <main className={`flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden transition-all duration-300 ${
+        isMobile ? 'ml-0' : 'lg:ml-72'
+      }`}>
+        {/* Add top padding on mobile to avoid overlap with hamburger menu */}
+        <div className={isMobile ? 'mt-16' : ''}>
+          {children}
+        </div>
       </main>
 
-      {/* Robot-Bot AI Assistant v6.12 - ENHANCED SOCIAL LEARNER DASHBOARD SUPPORT */}
-      <PreGeneratedVoiceAgent
-        messageKey={voiceMessage.key}
-        message={voiceMessage.text}
-        autoPlay={true}
-        position="bottom-right"
-      />
+      {/* Robot-Bot AI Assistant v6.12 - Only show on dashboard/main routes */}
+      {!hasTabSpecificAudio && (
+        <PreGeneratedVoiceAgent
+          messageKey={voiceMessage.key}
+          message={voiceMessage.text}
+          autoPlay={true}
+          position="bottom-right"
+        />
+      )}
 
       {/* eUstaad Consent Modal */}
       <EUstaadConsentModal

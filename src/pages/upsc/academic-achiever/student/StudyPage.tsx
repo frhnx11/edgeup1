@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Calendar,
@@ -10,7 +10,8 @@ import {
   ClipboardCheck
 } from 'lucide-react';
 import { DashboardLayout } from '../../../../layouts/DashboardLayout';
-// Removed PreGeneratedVoiceAgent - using PreGeneratedVoiceAgent from DashboardLayout
+import { PreGeneratedVoiceAgent } from '../../../../components/upsc/common/PreGeneratedVoiceAgent';
+import { PAGE_VOICE_MESSAGES } from '../../../../config/voiceMessages';
 import { CalendarPage } from './CalendarPage';
 import { ClassesPage } from './ClassesPage';
 import { PerformancePage } from './PerformancePage';
@@ -30,6 +31,26 @@ type TabType =
 
 const StudyPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('calendar');
+  const [showTabAudio, setShowTabAudio] = useState(false);
+
+  // Show tab-specific audio after initial mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowTabAudio(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Get voice message for current tab
+  const currentVoiceMessage = PAGE_VOICE_MESSAGES[activeTab] || PAGE_VOICE_MESSAGES['calendar'];
+
+  // Scroll to top when tab changes
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }, [activeTab]);
 
   const tabs = [
     {
@@ -161,6 +182,17 @@ const StudyPage: React.FC = () => {
         >
           {renderContent()}
         </motion.div>
+
+        {/* Tab-specific voice agent - plays when tabs change */}
+        {showTabAudio && (
+          <PreGeneratedVoiceAgent
+            key={activeTab}
+            messageKey={currentVoiceMessage.key}
+            message={currentVoiceMessage.text}
+            autoPlay={true}
+            position="bottom-right"
+          />
+        )}
       </div>
     </DashboardLayout>
   );
