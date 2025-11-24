@@ -1,0 +1,260 @@
+/**
+ * Icon Utility Classes
+ *
+ * These classes help with consistent icon sizing, alignment, and styling across the app.
+ * Import this file in your component CSS or main index.css
+ */
+
+/* ========== ICON ALIGNMENT ========== */
+
+/* Align icon with text baseline (for inline icons) */
+.icon-inline {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+/* Icon with text - horizontal layout */
+.icon-with-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Icon with text - vertical layout (stacked) */
+.icon-with-text-vertical {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  text-align: center;
+}
+
+/* Center icon in container */
+.icon-centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ========== ICON SPACING ========== */
+
+/* Icon spacing when used with text */
+.icon-left {
+  margin-right: 0.5rem;
+}
+
+.icon-right {
+  margin-left: 0.5rem;
+}
+
+.icon-top {
+  margin-bottom: 0.25rem;
+}
+
+.icon-bottom {
+  margin-top: 0.25rem;
+}
+
+/* Compact spacing (for buttons, badges) */
+.icon-spacing-sm {
+  gap: 0.25rem;
+}
+
+/* Default spacing */
+.icon-spacing-md {
+  gap: 0.5rem;
+}
+
+/* Larger spacing (for cards, sections) */
+.icon-spacing-lg {
+  gap: 0.75rem;
+}
+
+/* ========== ICON CONTAINERS ========== */
+
+/* Icon button wrapper */
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 0.375rem;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.icon-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.icon-button:active {
+  transform: scale(0.95);
+}
+
+/* Icon badge/avatar wrapper */
+.icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.icon-badge-sm {
+  width: 2rem;
+  height: 2rem;
+}
+
+.icon-badge-lg {
+  width: 3rem;
+  height: 3rem;
+}
+
+.icon-badge-xl {
+  width: 4rem;
+  height: 4rem;
+}
+
+/* Icon card header */
+.icon-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* ========== ICON STATES ========== */
+
+/* Active state icon */
+.icon-active {
+  color: #667eea;
+}
+
+/* Disabled state icon */
+.icon-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Hover effect for interactive icons */
+.icon-interactive {
+  cursor: pointer;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.icon-interactive:hover {
+  color: #667eea;
+  transform: scale(1.1);
+}
+
+/* ========== ICON ANIMATIONS ========== */
+
+/* Spinning icon (for loading states) */
+.icon-spin {
+  animation: icon-spin 1s linear infinite;
+}
+
+@keyframes icon-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Pulse animation (for notifications) */
+.icon-pulse {
+  animation: icon-pulse 2s ease-in-out infinite;
+}
+
+@keyframes icon-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Bounce animation (for alerts) */
+.icon-bounce {
+  animation: icon-bounce 1s ease infinite;
+}
+
+@keyframes icon-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.25rem);
+  }
+}
+
+/* ========== STATUS ICONS ========== */
+
+/* Success icon styling */
+.icon-success {
+  color: #10b981;
+}
+
+/* Error icon styling */
+.icon-error {
+  color: #ef4444;
+}
+
+/* Warning icon styling */
+.icon-warning {
+  color: #f59e0b;
+}
+
+/* Info icon styling */
+.icon-info {
+  color: #3b82f6;
+}
+
+/* ========== RESPONSIVE SIZING ========== */
+
+/* Hide icons on mobile */
+@media (max-width: 640px) {
+  .icon-hide-mobile {
+    display: none;
+  }
+}
+
+/* Show icons only on mobile */
+@media (min-width: 641px) {
+  .icon-mobile-only {
+    display: none;
+  }
+}
+
+/* ========== ACCESSIBILITY ========== */
+
+/* Screen reader only icon labels */
+.icon-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus visible for keyboard navigation */
+.icon-button:focus-visible,
+.icon-interactive:focus-visible {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
