@@ -2,7 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, X } from 'lucide-react';
 import Lottie from 'lottie-react';
-import { audioTracker } from '../../../utils/audioTracker';
+import { simpleAudioTracker } from '../../../utils/simpleAudioTracker';
+import { userInteractionTracker } from '../../../utils/userInteractionTracker';
 
 // Audio file paths mapping
 const VOICE_AUDIO_MAP: Record<string, string> = {
@@ -44,31 +45,45 @@ export function PreGeneratedVoiceAgent({
   autoPlay = true,
   position = 'bottom-right'
 }: PreGeneratedVoiceAgentProps) {
+  // Debug logging
+  const userType = window.location.pathname.includes('academic-achiever')
+    ? 'academic-achiever'
+    : window.location.pathname.includes('social-learner')
+    ? 'social-learner'
+    : 'unknown';
+
+  console.log('🔍 PreGeneratedVoiceAgent v6.12: INIT', {
+    messageKey,
+    userType,
+    path: window.location.pathname,
+    autoPlay
+  });
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
+  const [waitingForInteraction, setWaitingForInteraction] = useState(false);
 
   const lottieRef = useRef<any>(null);
   const [animationData, setAnimationData] = useState<any>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const messageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Position classes
+  // Position classes - responsive
   const positionClasses = {
-    'bottom-right': 'bottom-6 right-6',
-    'bottom-left': 'bottom-6 left-6',
-    'top-right': 'top-40 right-6',
-    'top-left': 'top-40 left-6'
+    'bottom-right': 'bottom-4 right-4 sm:bottom-6 sm:right-6',
+    'bottom-left': 'bottom-4 left-4 sm:bottom-6 sm:left-6',
+    'top-right': 'top-20 right-4 sm:top-40 sm:right-6',
+    'top-left': 'top-20 left-4 sm:top-40 sm:left-6'
   };
 
-  // Message bubble position (relative to bot)
+  // Message bubble position (relative to bot) - responsive
   const messageBubblePosition = {
-    'bottom-right': 'bottom-52 right-20',
-    'bottom-left': 'bottom-52 left-20',
-    'top-right': 'top-52 right-20',
-    'top-left': 'top-52 left-20'
+    'bottom-right': 'bottom-32 right-4 sm:bottom-52 sm:right-20',
+    'bottom-left': 'bottom-32 left-4 sm:bottom-52 sm:left-20',
+    'top-right': 'top-32 right-4 sm:top-52 sm:right-20',
+    'top-left': 'top-32 left-4 sm:top-52 sm:left-20'
   };
 
   // Function to trigger Lottie animation
@@ -89,7 +104,6 @@ export function PreGeneratedVoiceAgent({
   // Stop audio and hide message
   const stopAudio = () => {
     if (audioRef.current) {
-      audioTracker.unregisterAudioElement(audioRef.current); // Unregister from tracker
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
       audioRef.current = null;
@@ -103,21 +117,23 @@ export function PreGeneratedVoiceAgent({
     setIsPlaying(false);
     setShowMessage(false);
     triggerLottieAnimation(false);
+    simpleAudioTracker.markAsStopped();
   };
 
   // Play pre-generated audio
   const playAudio = useCallback(() => {
-    // Check if already played using global tracker
-    if (audioTracker.hasPlayed(messageKey)) {
+    console.log('🎬 PreGeneratedVoiceAgent v6.12: playAudio called for key:', messageKey);
+
+    // Clear waiting state if it was set
+    setWaitingForInteraction(false);
+
+    // Use simple tracker to check if should play
+    if (!simpleAudioTracker.shouldPlay(messageKey)) {
+      console.log('❌ Tracker says not to play');
       return;
     }
 
-    // Check if currently playing
-    if (audioTracker.isCurrentlyPlaying(messageKey)) {
-      return;
-    }
-
-    console.log('🎵 PreGeneratedVoiceAgent v6.6: Starting playback for key:', messageKey);
+    console.log('🎵 PreGeneratedVoiceAgent v6.12: Starting playback for key:', messageKey);
     const audioPath = VOICE_AUDIO_MAP[messageKey];
 
     if (!audioPath) {
@@ -127,11 +143,8 @@ export function PreGeneratedVoiceAgent({
 
     console.log('🎵 Audio path:', audioPath);
 
-    // Stop ALL audio first to ensure no duplicates
-    audioTracker.stopAllAudio();
-
-    // Mark as playing in global tracker
-    audioTracker.markAsPlayed(messageKey);
+    // Mark as playing in tracker
+    simpleAudioTracker.markAsPlaying(messageKey);
 
     // Stop any existing audio first
     stopAudio();
@@ -142,9 +155,6 @@ export function PreGeneratedVoiceAgent({
     // Create and play audio
     const audio = new Audio(audioPath);
     audioRef.current = audio;
-
-    // Register audio element with tracker
-    audioTracker.registerAudioElement(audio);
 
     audio.onloadedmetadata = () => {
       // Calculate when to hide message (audio duration + 500ms buffer)
@@ -165,8 +175,7 @@ export function PreGeneratedVoiceAgent({
     audio.onended = () => {
       setIsPlaying(false);
       triggerLottieAnimation(false);
-      audioTracker.stopPlaying(); // Mark as no longer playing in global tracker
-      audioTracker.unregisterAudioElement(audio); // Unregister from tracker
+      simpleAudioTracker.markAsStopped();
     };
 
     audio.onerror = (error) => {
@@ -174,14 +183,14 @@ export function PreGeneratedVoiceAgent({
       setIsPlaying(false);
       setShowMessage(false);
       triggerLottieAnimation(false);
-      audioTracker.unregisterAudioElement(audio); // Unregister from tracker
+      simpleAudioTracker.markAsStopped();
     };
 
     audio.play().catch(error => {
       console.error('Failed to play audio:', error);
       setIsPlaying(false);
       setShowMessage(false);
-      audioTracker.unregisterAudioElement(audio); // Unregister from tracker on play failure
+      simpleAudioTracker.markAsStopped();
     });
   }, [messageKey]);
 
@@ -211,27 +220,110 @@ export function PreGeneratedVoiceAgent({
 
   // Track the previous messageKey to detect actual changes
   const prevMessageKeyRef = useRef<string | null>(null);
+  const autoplayTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const hasAttemptedAutoplay = useRef(false);
 
   // Auto-play on mount or when messageKey changes
   useEffect(() => {
+    console.log('🔄 PreGeneratedVoiceAgent v6.12: Auto-play effect', {
+      messageKey,
+      prevKey: prevMessageKeyRef.current,
+      autoPlay,
+      isVisible,
+      hasUserInteracted: userInteractionTracker.hasUserInteracted(),
+      hasAttempted: hasAttemptedAutoplay.current,
+      userType
+    });
+
+    // Clear any existing timer
+    if (autoplayTimerRef.current) {
+      clearTimeout(autoplayTimerRef.current);
+      autoplayTimerRef.current = null;
+    }
+
     // Skip if messageKey hasn't actually changed (prevent StrictMode double render)
-    if (prevMessageKeyRef.current === messageKey) {
+    if (prevMessageKeyRef.current === messageKey && hasAttemptedAutoplay.current) {
       return;
     }
-    prevMessageKeyRef.current = messageKey;
+
+    if (prevMessageKeyRef.current !== messageKey) {
+      prevMessageKeyRef.current = messageKey;
+      hasAttemptedAutoplay.current = false;
+    }
 
     // Only play if autoPlay is enabled and visible
-    if (autoPlay && isVisible) {
-      // Check if already played
-      if (!audioTracker.hasPlayed(messageKey) && !audioTracker.isCurrentlyPlaying(messageKey)) {
-        console.log('🎵 PreGeneratedVoiceAgent v6.6: Auto-playing:', messageKey);
-        const timer = setTimeout(() => {
-          playAudio();
-        }, 500);
-        return () => clearTimeout(timer);
+    if (autoPlay && isVisible && !hasAttemptedAutoplay.current) {
+      // Check with simple tracker
+      if (simpleAudioTracker.shouldPlay(messageKey)) {
+        console.log('✅ PreGeneratedVoiceAgent v6.12: Will auto-play:', messageKey);
+        hasAttemptedAutoplay.current = true;
+
+        // Check if user has interacted
+        if (userInteractionTracker.hasUserInteracted()) {
+          // User has interacted, we can autoplay with a delay
+          // v6.12: Longer delay for Social Learner dashboard due to lazy loading
+          const delay = (messageKey === 'dashboard' && userType === 'social-learner') ? 1500 : 1000;
+          console.log(`🎯 Setting autoplay timer for: ${messageKey} with ${delay}ms delay`);
+          autoplayTimerRef.current = setTimeout(() => {
+            console.log('⏰ Timer fired, calling playAudio for:', messageKey);
+            playAudio();
+          }, delay);
+        } else {
+          // Wait for user interaction
+          console.log('⏳ Waiting for user interaction before autoplay');
+          setWaitingForInteraction(true);
+          userInteractionTracker.waitForInteraction(() => {
+            // Check again if should play (user might have manually played it)
+            if (simpleAudioTracker.shouldPlay(messageKey)) {
+              console.log('👆 User interacted! Now playing:', messageKey);
+              setWaitingForInteraction(false);
+              playAudio();
+            }
+          });
+        }
       }
     }
-  }, [messageKey, autoPlay, isVisible, playAudio]);
+
+    // Cleanup function
+    return () => {
+      if (autoplayTimerRef.current) {
+        clearTimeout(autoplayTimerRef.current);
+        autoplayTimerRef.current = null;
+      }
+    };
+  }, [messageKey, autoPlay, isVisible]); // Removed playAudio from deps to prevent re-renders
+
+  // Fallback autoplay mechanism - runs after component stabilizes
+  useEffect(() => {
+    if (!autoPlay || !isVisible) return;
+
+    // Only run fallback after a longer delay to ensure primary mechanism had a chance
+    const fallbackTimer = setTimeout(() => {
+      if (userInteractionTracker.hasUserInteracted() && simpleAudioTracker.shouldPlay(messageKey)) {
+        console.log('🔧 Fallback autoplay mechanism triggered for:', messageKey);
+        playAudio();
+      }
+    }, 2000); // 2 second fallback
+
+    // Special handling for dashboard pages which use lazy loading
+    if (messageKey === 'dashboard') {
+      // v6.12: Even longer delay for Social Learner dashboards (4 seconds)
+      const dashboardDelay = userType === 'social-learner' ? 4000 : 3000;
+      const dashboardFallback = setTimeout(() => {
+        if (userInteractionTracker.hasUserInteracted() && simpleAudioTracker.shouldPlay(messageKey)) {
+          console.log(`🏠 Dashboard-specific fallback triggered for ${userType}:`, messageKey);
+          playAudio();
+        }
+      }, dashboardDelay);
+
+      return () => {
+        clearTimeout(fallbackTimer);
+        clearTimeout(dashboardFallback);
+      };
+    }
+
+    return () => clearTimeout(fallbackTimer);
+  }, [messageKey, autoPlay, isVisible, playAudio, userType]);
 
   if (!isVisible) {
     return null;
@@ -252,9 +344,9 @@ export function PreGeneratedVoiceAgent({
               exit={{ opacity: 0 }}
             />
 
-            {/* Speech Bubble */}
+            {/* Speech Bubble - Responsive */}
             <motion.div
-              className={`fixed ${messageBubblePosition[position]} z-[9999] max-w-sm`}
+              className={`fixed ${messageBubblePosition[position]} z-[9999] max-w-[280px] sm:max-w-sm`}
               initial={{ opacity: 0, scale: 0.8, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.8, y: 20 }}
@@ -266,9 +358,9 @@ export function PreGeneratedVoiceAgent({
                 damping: 25
               }}
             >
-              {/* Speech bubble container */}
+              {/* Speech bubble container - Responsive padding */}
               <div
-                className="relative rounded-2xl shadow-2xl p-5 pr-10"
+                className="relative rounded-2xl shadow-2xl p-4 pr-9 sm:p-5 sm:pr-10"
                 style={{
                   background: 'linear-gradient(135deg, #8B7FF8 0%, #7B6FE8 50%, #6B5FD8 100%)',
                   boxShadow: '0 8px 32px rgba(107, 95, 216, 0.4), 0 4px 16px rgba(139, 127, 248, 0.3)'
@@ -283,9 +375,9 @@ export function PreGeneratedVoiceAgent({
                   <X className="w-5 h-5" />
                 </button>
 
-                {/* Message text */}
+                {/* Message text - Responsive font size */}
                 <motion.p
-                  className="font-semibold text-base leading-relaxed"
+                  className="font-semibold text-sm sm:text-base leading-relaxed"
                   style={{
                     color: '#ffffff',
                     textShadow: '0 2px 4px rgba(0, 0, 0, 0.15)'
@@ -352,9 +444,11 @@ export function PreGeneratedVoiceAgent({
               </>
             )}
 
-            {/* Main Lottie Animation Container */}
+            {/* Main Lottie Animation Container - Responsive Size */}
             <motion.div
-              className="relative w-40 h-40 rounded-full overflow-hidden shadow-2xl cursor-pointer"
+              className={`relative w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-full overflow-hidden shadow-2xl cursor-pointer ${
+                waitingForInteraction ? 'animate-bounce' : ''
+              }`}
               style={{
                 background: 'radial-gradient(circle at center, #B4A7FF 0%, #9B8FE8 40%, #7D6FD3 100%)'
               }}
@@ -443,7 +537,8 @@ export function PreGeneratedVoiceAgent({
                   exit={{ opacity: 0, y: 10 }}
                   className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap shadow-xl"
                 >
-                  {audioTracker.hasPlayed(messageKey) ? 'Click to replay' : 'Click to play'}
+                  {waitingForInteraction ? 'Click anywhere to enable audio' :
+                   !simpleAudioTracker.shouldPlay(messageKey) ? 'Click to replay' : 'Click to play'}
                   <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
                     <div className="border-4 border-transparent border-t-gray-900"></div>
                   </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Target, FileText, ClipboardCheck } from 'lucide-react';
 import { DashboardLayout } from '../../../../layouts/DashboardLayout';
@@ -10,6 +10,14 @@ type TabType = 'skills' | 'question-generation' | 'exam-correction';
 
 const DevelopmentPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('skills');
+
+  // Scroll to top when tab changes
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }, [activeTab]);
 
   const tabs = [
     {

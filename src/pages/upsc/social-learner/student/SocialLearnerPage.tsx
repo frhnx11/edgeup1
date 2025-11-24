@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Play, MessageCircle, Users, Trophy } from 'lucide-react';
 import { DashboardLayout } from '../../../../layouts/DashboardLayout';
@@ -11,6 +11,14 @@ type TabType = 'reels' | 'messages' | 'study-groups' | 'quizzes';
 
 const SocialLearnerPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('reels');
+
+  // Scroll to top when tab changes
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }, [activeTab]);
 
   const tabs = [
     {

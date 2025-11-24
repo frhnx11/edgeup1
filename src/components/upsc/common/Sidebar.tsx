@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Calendar,
   ClipboardCheck as ChalkboardTeacher,
@@ -27,16 +27,35 @@ import {
   BarChart3,
   Award,
   Gauge,
-  ClipboardList
+  ClipboardList,
+  Menu,
+  X
 } from 'lucide-react';
 import { useRole } from '../../../contexts/RoleContext';
 
-export function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const userData = JSON.parse(localStorage.getItem('userData') || '{}');
   const { currentRole, setRole } = useRole();
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024); // lg breakpoint
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Get user's stage and personality type
   const userStage = localStorage.getItem('userStage') || 'upsc';
@@ -95,8 +114,38 @@ export function Sidebar() {
     navigate('/login');
   };
 
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    if (isMobile && onClose) {
+      onClose();
+    }
+  };
+
   return (
-    <aside className="bg-white w-72 min-w-72 h-screen fixed left-0 top-0 border-r border-gray-200 flex flex-col">
+    <>
+      {/* Mobile Overlay */}
+      {isMobile && isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`bg-white w-72 h-screen fixed left-0 top-0 border-r border-gray-200 flex flex-col z-50 transition-transform duration-300 ease-in-out ${
+          isMobile ? (isOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'
+        }`}
+      >
+        {/* Mobile Close Button */}
+        {isMobile && (
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 rounded-lg hover:bg-gray-100 lg:hidden z-10"
+          >
+            <X className="w-5 h-5 text-gray-600" />
+          </button>
+        )}
       {/* Logo */}
       <div className="p-6 border-b border-gray-200">
         <img 
@@ -190,7 +239,7 @@ export function Sidebar() {
               {section.items.map((item) => (
                 <button
                   key={item.path}
-                  onClick={() => navigate(item.path)}
+                  onClick={() => handleNavigation(item.path)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
                     ${location.pathname === item.path
                       ? 'bg-brand-primary text-white'
@@ -229,5 +278,6 @@ export function Sidebar() {
         </button>
       </div>
     </aside>
+    </>
   );
 }
