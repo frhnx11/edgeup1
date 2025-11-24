@@ -20,77 +20,77 @@ export const PAGE_VOICE_MESSAGES: Record<string, VoiceMessage> = {
   },
   'leaderboard': {
     key: 'leaderboard',
-    text: 'See where you stand! Compare your performance with peers and get motivated to climb higher!'
+    text: 'Welcome to the Leaderboard! See your rank among top performers, track your progress, and compete with the best minds preparing for UPSC!'
   },
   'readiness-score': {
     key: 'readiness-score',
-    text: 'Check your exam readiness! I will calculate your preparedness based on syllabus coverage and test scores!'
+    text: 'Your Exam Readiness Dashboard! Get AI-powered analysis of your preparation level, identify weak areas, and receive personalized recommendations to boost your score!'
   },
   'test-analytics': {
     key: 'test-analytics',
-    text: 'Master your test strategy! See which topics need attention and which question types to focus on!'
+    text: 'Deep dive into Mock Test Analytics! Analyze your performance patterns, question-wise breakdown, time management insights, and compare with toppers to refine your strategy!'
   },
   'quizzes': {
     key: 'quizzes',
-    text: 'Quick learning checks! Test your knowledge with bite-sized quizzes on every topic!'
+    text: 'Smart Quizzes await! Practice with adaptive quizzes tailored to your learning pace, covering all UPSC topics with instant feedback and detailed explanations!'
   },
 
   // Study Pages
   'calendar': {
     key: 'calendar',
-    text: 'Your study calendar! You have 2 live classes today and 1 assignment due tomorrow - stay on track!'
+    text: 'Your Study Calendar! Plan your preparation with scheduled classes, assignments, and study sessions. Stay organized and never miss important deadlines!'
   },
   'classes': {
     key: 'classes',
-    text: 'Virtual classroom hub! Attend live sessions, watch recordings, and never miss a class!'
+    text: 'Welcome to Classes! Join live interactive sessions with expert faculty, access recorded lectures, download notes, and participate in doubt-clearing discussions!'
   },
   'performance': {
     key: 'performance',
-    text: 'Deep dive into your performance! Analyze trends, identify patterns, and track your growth over time!'
+    text: 'Your Performance Dashboard! Comprehensive analysis of your test scores, subject-wise strengths and weaknesses, progress trends, and detailed improvement recommendations!'
   },
   'tasks': {
     key: 'tasks',
-    text: 'Task management central! You have 5 pending tasks - let us prioritize and complete them!'
+    text: 'Task Management Hub! Track all your assignments, practice problems, revision tasks, and essay submissions. Stay on top of your preparation with smart prioritization!'
   },
   'resources': {
     key: 'resources',
-    text: 'Your comprehensive resource hub! Access PDFs, videos, audio lectures, and practice materials all in one place!'
+    text: 'Study Resources Library! Access curated UPSC materials including NCERT notes, current affairs compilations, previous year papers, video lectures, and expert-recommended study guides!'
   },
   'syllabus': {
     key: 'syllabus',
-    text: 'Track your syllabus coverage! Stay organized and ensure you complete every topic before the exam!'
+    text: 'Syllabus Tracker! Monitor your coverage across all UPSC subjects, track topic-wise completion, identify gaps, and get AI-powered suggestions for optimal coverage!'
   },
   'tests': {
     key: 'tests',
-    text: 'Your complete testing suite! Choose from topic-wise tests, full-length mocks, or quick revision quizzes!'
+    text: 'Test Suite! Challenge yourself with topic tests, sectional tests, full-length mock exams, and previous year papers. Get instant evaluation with detailed analytics!'
   },
 
   // Development Pages
   'skills': {
     key: 'skills',
-    text: 'Develop essential skills! Work on critical thinking, time management, and problem-solving abilities!'
+    text: 'Skills Development Center! Enhance your critical thinking, analytical reasoning, time management, and answer writing skills with structured practice modules and expert guidance!'
   },
   'question-generation': {
     key: 'question-generation',
-    text: 'Create custom question papers! Select topics, difficulty, and question types - I will generate them instantly!'
+    text: 'AI Question Generator! Create unlimited custom practice papers by selecting topics, difficulty levels, and question patterns. Get UPSC-style questions tailored to your preparation needs!'
   },
   'exam-correction': {
     key: 'exam-correction',
-    text: 'AI-powered answer evaluation! Get instant feedback on your subjective answers with improvement tips!'
+    text: 'Intelligent Exam Correction! Upload your answer sheets and get AI-powered evaluation with detailed feedback, scoring insights, and specific suggestions to improve your writing quality!'
   },
 
   // Personal Pages
   'mentor': {
     key: 'mentor',
-    text: 'Connect with your mentor! Get personalized guidance, career advice, and motivation from experts!'
+    text: 'Your Personal Mentor! Connect with experienced UPSC mentors for one-on-one guidance, strategy sessions, answer writing reviews, and motivational support throughout your journey!'
   },
   'smart-gadgets': {
     key: 'smart-gadgets',
-    text: 'Integrate your smart devices! Connect wearables and study tools for enhanced learning analytics!'
+    text: 'Smart Gadgets Integration! Connect fitness trackers, sleep monitors, and study tools to optimize your preparation. Track study hours, health metrics, and get AI-powered wellness recommendations!'
   },
   'pasco': {
     key: 'pasco',
-    text: 'PASCO Assessment Center! Evaluate your Problem-solving, Analytical, Spatial, and Confidence skills!'
+    text: 'PASCO Skills Assessment! Comprehensive evaluation of your Problem-solving, Analytical reasoning, Spatial intelligence, Conceptual understanding, and Overall readiness for UPSC Civil Services!'
   },
 
   // AI Learning Pages

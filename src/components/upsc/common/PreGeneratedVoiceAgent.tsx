@@ -52,7 +52,7 @@ export function PreGeneratedVoiceAgent({
     ? 'social-learner'
     : 'unknown';
 
-  console.log('🔍 PreGeneratedVoiceAgent v6.10: INIT', {
+  console.log('🔍 PreGeneratedVoiceAgent v6.12: INIT', {
     messageKey,
     userType,
     path: window.location.pathname,
@@ -122,7 +122,7 @@ export function PreGeneratedVoiceAgent({
 
   // Play pre-generated audio
   const playAudio = useCallback(() => {
-    console.log('🎬 PreGeneratedVoiceAgent v6.10: playAudio called for key:', messageKey);
+    console.log('🎬 PreGeneratedVoiceAgent v6.12: playAudio called for key:', messageKey);
 
     // Clear waiting state if it was set
     setWaitingForInteraction(false);
@@ -133,7 +133,7 @@ export function PreGeneratedVoiceAgent({
       return;
     }
 
-    console.log('🎵 PreGeneratedVoiceAgent v6.10: Starting playback for key:', messageKey);
+    console.log('🎵 PreGeneratedVoiceAgent v6.12: Starting playback for key:', messageKey);
     const audioPath = VOICE_AUDIO_MAP[messageKey];
 
     if (!audioPath) {
@@ -225,13 +225,14 @@ export function PreGeneratedVoiceAgent({
 
   // Auto-play on mount or when messageKey changes
   useEffect(() => {
-    console.log('🔄 PreGeneratedVoiceAgent v6.10: Auto-play effect', {
+    console.log('🔄 PreGeneratedVoiceAgent v6.12: Auto-play effect', {
       messageKey,
       prevKey: prevMessageKeyRef.current,
       autoPlay,
       isVisible,
       hasUserInteracted: userInteractionTracker.hasUserInteracted(),
-      hasAttempted: hasAttemptedAutoplay.current
+      hasAttempted: hasAttemptedAutoplay.current,
+      userType
     });
 
     // Clear any existing timer
@@ -254,17 +255,19 @@ export function PreGeneratedVoiceAgent({
     if (autoPlay && isVisible && !hasAttemptedAutoplay.current) {
       // Check with simple tracker
       if (simpleAudioTracker.shouldPlay(messageKey)) {
-        console.log('✅ PreGeneratedVoiceAgent v6.10: Will auto-play:', messageKey);
+        console.log('✅ PreGeneratedVoiceAgent v6.12: Will auto-play:', messageKey);
         hasAttemptedAutoplay.current = true;
 
         // Check if user has interacted
         if (userInteractionTracker.hasUserInteracted()) {
-          // User has interacted, we can autoplay with a longer delay for stability
-          console.log('🎯 Setting autoplay timer for:', messageKey);
+          // User has interacted, we can autoplay with a delay
+          // v6.12: Longer delay for Social Learner dashboard due to lazy loading
+          const delay = (messageKey === 'dashboard' && userType === 'social-learner') ? 1500 : 1000;
+          console.log(`🎯 Setting autoplay timer for: ${messageKey} with ${delay}ms delay`);
           autoplayTimerRef.current = setTimeout(() => {
             console.log('⏰ Timer fired, calling playAudio for:', messageKey);
             playAudio();
-          }, 1000); // Increased delay for stability
+          }, delay);
         } else {
           // Wait for user interaction
           console.log('⏳ Waiting for user interaction before autoplay');
@@ -302,8 +305,25 @@ export function PreGeneratedVoiceAgent({
       }
     }, 2000); // 2 second fallback
 
+    // Special handling for dashboard pages which use lazy loading
+    if (messageKey === 'dashboard') {
+      // v6.12: Even longer delay for Social Learner dashboards (4 seconds)
+      const dashboardDelay = userType === 'social-learner' ? 4000 : 3000;
+      const dashboardFallback = setTimeout(() => {
+        if (userInteractionTracker.hasUserInteracted() && simpleAudioTracker.shouldPlay(messageKey)) {
+          console.log(`🏠 Dashboard-specific fallback triggered for ${userType}:`, messageKey);
+          playAudio();
+        }
+      }, dashboardDelay);
+
+      return () => {
+        clearTimeout(fallbackTimer);
+        clearTimeout(dashboardFallback);
+      };
+    }
+
     return () => clearTimeout(fallbackTimer);
-  }, [messageKey, autoPlay, isVisible, playAudio]);
+  }, [messageKey, autoPlay, isVisible, playAudio, userType]);
 
   if (!isVisible) {
     return null;
