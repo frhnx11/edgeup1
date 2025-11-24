@@ -3,7 +3,10 @@
     "allow": [
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(del \"C:\\Users\\ACER\\Desktop\\Latest\\.git\\index.lock\")"
+      "Bash(del \"C:\\Users\\ACER\\Desktop\\Latest\\.git\\index.lock\")",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

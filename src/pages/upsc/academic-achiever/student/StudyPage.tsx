@@ -10,7 +10,7 @@ import {
   ClipboardCheck
 } from 'lucide-react';
 import { DashboardLayout } from '../../../../layouts/DashboardLayout';
-// Removed PreGeneratedVoiceAgent - using ElevenLabs AIVoiceAgent from DashboardLayout
+// Removed PreGeneratedVoiceAgent - using PreGeneratedVoiceAgent from DashboardLayout
 import { CalendarPage } from './CalendarPage';
 import { ClassesPage } from './ClassesPage';
 import { PerformancePage } from './PerformancePage';
@@ -162,9 +162,6 @@ const StudyPage: React.FC = () => {
           {renderContent()}
         </motion.div>
       </div>
-
-      {/* AI Voice Agent is provided by DashboardLayout with ElevenLabs */}
-
     </DashboardLayout>
   );
 };

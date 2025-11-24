@@ -29,7 +29,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   // Log route changes
   useEffect(() => {
-    console.log('📍 DashboardLayout v6.6: Route changed to:', location.pathname);
+    console.log('📍 DashboardLayout v6.10: Route changed to:', location.pathname);
     console.log('🎵 Voice message key:', voiceMessage.key);
   }, [location.pathname, voiceMessage.key]);
 
@@ -88,7 +88,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         {children}
       </main>
 
-      {/* Robot-Bot AI Assistant v6.6 - SIMPLIFIED TRACKING WITH CLEAN SESSION MANAGEMENT */}
+      {/* Robot-Bot AI Assistant v6.10 - ROBUST AUTOPLAY WITH FALLBACK MECHANISM */}
       <PreGeneratedVoiceAgent
         messageKey={voiceMessage.key}
         message={voiceMessage.text}

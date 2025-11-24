@@ -145,7 +145,26 @@ export function getVoiceMessageForRoute(pathname: string): VoiceMessage {
     return PAGE_VOICE_MESSAGES[lastPart];
   }
 
-  // PRIORITY 2: Check specific page paths
+  // PRIORITY 2: Check for study/development/personal sections FIRST (more specific)
+  if (pathname.includes('/study')) {
+    // Default to calendar for study section
+    console.log('✅ Study section detected, using calendar audio');
+    return PAGE_VOICE_MESSAGES['calendar'];
+  }
+
+  if (pathname.includes('/development')) {
+    // Default to skills for development section
+    console.log('✅ Development section detected, using skills audio');
+    return PAGE_VOICE_MESSAGES['skills'];
+  }
+
+  if (pathname.includes('/personal')) {
+    // Default to mentor for personal section
+    console.log('✅ Personal section detected, using mentor audio');
+    return PAGE_VOICE_MESSAGES['mentor'];
+  }
+
+  // PRIORITY 3: Check specific page paths
   // Check for specific pages (more specific patterns first)
   const specificPages = [
     'dashboard',
@@ -169,9 +188,7 @@ export function getVoiceMessageForRoute(pathname: string): VoiceMessage {
     'pasco',
     'ai-learning',
     'ai-lesson-plan',
-    'test-page',
-    'social-learner',
-    'academic-achiever'
+    'test-page'
   ];
 
   for (const page of specificPages) {
@@ -181,29 +198,17 @@ export function getVoiceMessageForRoute(pathname: string): VoiceMessage {
     }
   }
 
-  // PRIORITY 3: Check for study/development/personal sections
-  if (pathname.includes('/study') && !pathname.includes('/dashboard')) {
-    // Default to calendar for study section if no specific page matched
-    console.log('✅ Study section detected, defaulting to calendar');
-    return PAGE_VOICE_MESSAGES['calendar'];
-  }
-
-  if (pathname.includes('/development') && !pathname.includes('/dashboard')) {
-    // Default to skills for development section if no specific page matched
-    console.log('✅ Development section detected, defaulting to skills');
-    return PAGE_VOICE_MESSAGES['skills'];
-  }
-
-  if (pathname.includes('/personal') && !pathname.includes('/dashboard')) {
-    // Default to mentor for personal section if no specific page matched
-    console.log('✅ Personal section detected, defaulting to mentor');
-    return PAGE_VOICE_MESSAGES['mentor'];
-  }
-
+  // PRIORITY 4: Check for main section pages (least specific)
   if (pathname.includes('/academic-achiever') && !pathname.includes('/dashboard')) {
-    // Default to advanced-analytics for academic achiever section
-    console.log('✅ Academic Achiever section detected, defaulting to advanced-analytics');
+    // Default to advanced-analytics for academic achiever overview page
+    console.log('✅ Academic Achiever overview page, using advanced-analytics audio');
     return PAGE_VOICE_MESSAGES['advanced-analytics'];
+  }
+
+  if (pathname.includes('/social-learner') && !pathname.includes('/dashboard')) {
+    // Default to dashboard for social learner overview
+    console.log('✅ Social Learner overview page, using dashboard audio');
+    return PAGE_VOICE_MESSAGES['dashboard'];
   }
 
   // PRIORITY 4: Only return dashboard for actual dashboard pages
