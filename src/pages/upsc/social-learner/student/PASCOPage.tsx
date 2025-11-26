@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WelcomeTooltip } from '../../../../components/upsc/common/WelcomeTooltip';
 import {
   Users,
   Trophy,
@@ -308,7 +307,6 @@ export function PASCOPage() {
   // Main PASCO Report
   return (
     <div className="min-h-screen bg-gray-50">
-      <WelcomeTooltip message="Understand your learning personality and optimize your study approach." />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}

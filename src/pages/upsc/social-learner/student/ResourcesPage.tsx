@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { PDFViewer } from '../../../../components/upsc/common/PDFViewer';
 import { VideoPlayer } from '../../../../components/upsc/common/VideoPlayer';
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
-import { WelcomeTooltip } from '../../../../components/upsc/common/WelcomeTooltip';
 import {
   BookOpen,
   Headphones,
@@ -245,6 +244,37 @@ export function ResourcesPage() {
     }
   ]);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [highlightedResourceId, setHighlightedResourceId] = useState<string | null>(null);
+  const resourceCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Handle highlight from localStorage (for AI navigation)
+  useEffect(() => {
+    const highlightId = localStorage.getItem('highlightClassId');
+    if (highlightId && highlightId.startsWith('resource-')) {
+      localStorage.removeItem('highlightClassId');
+      const resourceId = highlightId.replace('resource-', '');
+      setHighlightedResourceId(resourceId);
+
+      // Scroll to the resource card
+      const scrollToResource = () => {
+        const cardElement = resourceCardRefs.current[resourceId];
+        if (cardElement) {
+          cardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+      };
+
+      setTimeout(scrollToResource, 500);
+      setTimeout(scrollToResource, 1000);
+      setTimeout(scrollToResource, 2000);
+
+      // Clear highlight after 6 seconds
+      setTimeout(() => {
+        setHighlightedResourceId(null);
+      }, 6000);
+    }
+  }, []);
 
   const categories: Category[] = [
     { id: 'documents', name: 'Study Materials', icon: FileText, count: 125, color: 'indigo', trending: false },
@@ -667,7 +697,6 @@ export function ResourcesPage() {
       </div>
 
       <div className="relative z-10 space-y-6">
-        <WelcomeTooltip message="Access curated study materials and resources for your subjects." />
 
         {/* Study Streak Banner - Enhanced */}
         <motion.div
@@ -1095,29 +1124,49 @@ export function ResourcesPage() {
               className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"
             >
               {sortedResources.map((resource, index) => (
-                <motion.div
+                <div
                   key={resource.id}
-                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{
-                    delay: index * 0.05,
-                    type: "spring",
-                    stiffness: 100
-                  }}
-                  whileHover={{
-                    y: -10,
-                    scale: 1.02,
-                    transition: { duration: 0.2 }
-                  }}
-                  className="relative bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden border-2 border-gray-200 hover:border-[#094d88]/50 group"
-                  style={{
-                    boxShadow: hoveredResource === resource.id
-                      ? '0 20px 60px rgba(9, 77, 136, 0.2)'
-                      : '0 4px 20px rgba(0, 0, 0, 0.08)'
-                  }}
-                  onMouseEnter={() => setHoveredResource(resource.id)}
-                  onMouseLeave={() => setHoveredResource(null)}
+                  ref={(el) => { resourceCardRefs.current[resource.id] = el; }}
+                  className={`relative transition-all duration-500 rounded-2xl ${
+                    highlightedResourceId === resource.id
+                      ? 'ring-4 ring-teal-400 ring-offset-2 shadow-[0_0_30px_rgba(20,184,166,0.4)]'
+                      : ''
+                  }`}
                 >
+                  {highlightedResourceId === resource.id && (
+                    <motion.div
+                      className="absolute inset-0 rounded-2xl pointer-events-none z-20"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: [0.3, 0.6, 0.3] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, rgba(45, 212, 191, 0.1) 100%)',
+                        boxShadow: '0 0 40px rgba(20, 184, 166, 0.25)'
+                      }}
+                    />
+                  )}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{
+                      delay: index * 0.05,
+                      type: "spring",
+                      stiffness: 100
+                    }}
+                    whileHover={{
+                      y: -10,
+                      scale: 1.02,
+                      transition: { duration: 0.2 }
+                    }}
+                    className="relative bg-white/90 backdrop-blur-sm rounded-2xl overflow-hidden border-2 border-gray-200 hover:border-[#094d88]/50 group"
+                    style={{
+                      boxShadow: hoveredResource === resource.id
+                        ? '0 20px 60px rgba(9, 77, 136, 0.2)'
+                        : '0 4px 20px rgba(0, 0, 0, 0.08)'
+                    }}
+                    onMouseEnter={() => setHoveredResource(resource.id)}
+                    onMouseLeave={() => setHoveredResource(null)}
+                  >
                   {/* Enhanced Resource Card Header */}
                   <div className="relative h-48 overflow-hidden">
                     <motion.img
@@ -1368,7 +1417,8 @@ export function ResourcesPage() {
                       </button>
                     </div>
                   </div>
-                </motion.div>
+                  </motion.div>
+                </div>
               ))}
             </motion.div>
           ) : (
@@ -1381,14 +1431,34 @@ export function ResourcesPage() {
               className="space-y-4"
             >
               {sortedResources.map((resource, index) => (
-                <motion.div
+                <div
                   key={resource.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="bg-white rounded-xl border-2 border-gray-200 p-6 hover:border-[#094d88]/30 transition-all"
+                  ref={(el) => { resourceCardRefs.current[resource.id] = el; }}
+                  className={`relative transition-all duration-500 rounded-xl ${
+                    highlightedResourceId === resource.id
+                      ? 'ring-4 ring-teal-400 ring-offset-2 shadow-[0_0_30px_rgba(20,184,166,0.4)]'
+                      : ''
+                  }`}
                 >
-                  <div className="flex gap-6">
+                  {highlightedResourceId === resource.id && (
+                    <motion.div
+                      className="absolute inset-0 rounded-xl pointer-events-none z-20"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: [0.3, 0.6, 0.3] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, rgba(45, 212, 191, 0.1) 100%)',
+                        boxShadow: '0 0 40px rgba(20, 184, 166, 0.25)'
+                      }}
+                    />
+                  )}
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="bg-white rounded-xl border-2 border-gray-200 p-6 hover:border-[#094d88]/30 transition-all"
+                  >
+                    <div className="flex gap-6">
                     <img
                       src={resource.image}
                       alt={resource.title}
@@ -1464,7 +1534,8 @@ export function ResourcesPage() {
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                  </motion.div>
+                </div>
               ))}
             </motion.div>
           )}

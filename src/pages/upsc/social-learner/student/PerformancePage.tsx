@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WelcomeTooltip } from '../../../../components/upsc/common/WelcomeTooltip';
 import {
   TrendingUp,
   Clock,
@@ -339,7 +338,6 @@ export function PerformancePage() {
   return (
       <>
       <div className="space-y-6 relative">
-        <WelcomeTooltip message="Track your academic progress and identify areas for improvement." />
 
         {/* Animated Background Elements */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-30">

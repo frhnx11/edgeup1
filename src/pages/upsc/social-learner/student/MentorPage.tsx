@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WelcomeTooltip } from '../../../../components/upsc/common/WelcomeTooltip';
 import {
   UserCog,
   Video,
@@ -388,7 +387,6 @@ export function MentorPage() {
       </div>
 
       <div className="space-y-6 relative">
-        <WelcomeTooltip message="Connect with mentors for personalized guidance." />
 
         {/* Mentor Header */}
         <FuturisticCard className="rounded-2xl p-6" delay={0.1} neonGlow>

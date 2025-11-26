@@ -1,15 +1,30 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Target, FileText, ClipboardCheck } from 'lucide-react';
 import { DashboardLayout } from '../../../../layouts/DashboardLayout';
+import { PreGeneratedVoiceAgent } from '../../../../components/upsc/common/PreGeneratedVoiceAgent';
 import { SkillsPage } from './SkillsPage';
 import { QuestionGenerationPage } from './QuestionGenerationPage';
 import { ExamCorrectionPage } from './ExamCorrectionPage';
 
 type TabType = 'skills' | 'question-generation' | 'exam-correction';
 
+const VALID_TABS: TabType[] = ['skills', 'question-generation', 'exam-correction'];
+
 const DevelopmentPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabType>('skills');
+
+  // Read tab from URL query params on mount and when params change
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && VALID_TABS.includes(tabParam as TabType)) {
+      setActiveTab(tabParam as TabType);
+      // Clear the query param after applying it
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Scroll to top when tab changes
   useEffect(() => {
@@ -107,6 +122,9 @@ const DevelopmentPage: React.FC = () => {
           {renderContent()}
         </motion.div>
       </div>
+
+      {/* Voice Agent */}
+      <PreGeneratedVoiceAgent currentTab={activeTab} position="bottom-right" />
     </DashboardLayout>
   );
 };

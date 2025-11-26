@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { WelcomeTooltip } from '../../../../components/upsc/common/WelcomeTooltip';
 import {
   Brain,
   Target,
@@ -360,7 +359,6 @@ export function SkillsPage() {
 
   return (
       <div className="space-y-8">
-        <WelcomeTooltip message="Develop essential soft skills for holistic growth." />
 
         {/* Header */}
         <div className="bg-gradient-to-r from-[#094d88] to-[#10ac8b] rounded-xl p-8 text-white">

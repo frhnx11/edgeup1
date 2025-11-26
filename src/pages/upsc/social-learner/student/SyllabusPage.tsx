@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WelcomeTooltip } from '../../../../components/upsc/common/WelcomeTooltip';
 import {
   Search, Filter, ChevronRight, Book, Target, Clock, Brain, Star, BarChart2,
   TrendingUp, Users, Sparkles, Zap, Shield, Award, Flame, Network, Activity,
@@ -501,7 +500,6 @@ export function SyllabusPage() {
   return (
       <>
       <div className="max-w-[1600px] mx-auto space-y-8">
-        <WelcomeTooltip message="Review your complete curriculum and track topic coverage." />
 
         {/* Enhanced Header with Gradient */}
         <motion.div

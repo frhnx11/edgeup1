@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WelcomeTooltip } from '../../../../components/upsc/common/WelcomeTooltip';
 import { 
   BookOpen, Clock, FileText, Trophy, TrendingUp, 
   Calendar, ChevronRight, Award, Target, BarChart2,
@@ -93,6 +92,36 @@ export function TestSuitePage() {
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
   const [selectedView, setSelectedView] = useState<'grid' | 'list'>('grid');
+  const [highlightedTestId, setHighlightedTestId] = useState<string | null>(null);
+  const testCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Handle highlight from localStorage (for AI navigation)
+  useEffect(() => {
+    const highlightId = localStorage.getItem('highlightClassId');
+    if (highlightId && highlightId.startsWith('topic-')) {
+      localStorage.removeItem('highlightClassId');
+      setHighlightedTestId(highlightId);
+
+      // Scroll to the test card
+      const scrollToTest = () => {
+        const cardElement = testCardRefs.current[highlightId];
+        if (cardElement) {
+          cardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+      };
+
+      setTimeout(scrollToTest, 500);
+      setTimeout(scrollToTest, 1000);
+      setTimeout(scrollToTest, 2000);
+
+      // Clear highlight after 6 seconds
+      setTimeout(() => {
+        setHighlightedTestId(null);
+      }, 6000);
+    }
+  }, []);
 
   const stats: TestStats = {
     totalTests: 245,
@@ -237,10 +266,10 @@ export function TestSuitePage() {
       color: 'green',
       tests: [
         {
-          id: 'topic-history-1',
-          title: 'Ancient Indian History',
+          id: 'topic-geography-1',
+          title: 'Geography - Indian Climate',
           type: 'topic-wise',
-          subject: 'History',
+          subject: 'Geography',
           questions: 30,
           duration: 30,
           difficulty: 'easy',
@@ -484,7 +513,6 @@ export function TestSuitePage() {
 
   return (
       <div className={`space-y-6 ${darkMode ? 'dark' : ''}`}>
-        <WelcomeTooltip message="Practice with mock tests and evaluate your exam readiness." />
 
         {/* Enhanced Header with Animated Stats */}
         <motion.div 
@@ -919,7 +947,29 @@ export function TestSuitePage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {category.tests.slice(0, 3).map((test) => (
-                  <TestCard key={test.id} test={test} onStart={startTest} onViewResults={viewResults} />
+                  <div
+                    key={test.id}
+                    ref={(el) => { testCardRefs.current[test.id] = el; }}
+                    className={`relative transition-all duration-500 rounded-2xl ${
+                      highlightedTestId === test.id
+                        ? 'ring-4 ring-teal-400 ring-offset-2 shadow-[0_0_30px_rgba(20,184,166,0.4)]'
+                        : ''
+                    }`}
+                  >
+                    {highlightedTestId === test.id && (
+                      <motion.div
+                        className="absolute inset-0 rounded-2xl pointer-events-none z-20"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: [0.3, 0.6, 0.3] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                        style={{
+                          background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, rgba(45, 212, 191, 0.1) 100%)',
+                          boxShadow: '0 0 40px rgba(20, 184, 166, 0.25)'
+                        }}
+                      />
+                    )}
+                    <TestCard test={test} onStart={startTest} onViewResults={viewResults} />
+                  </div>
                 ))}
               </div>
             </motion.div>
@@ -927,7 +977,29 @@ export function TestSuitePage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredTests.map((test) => (
-              <TestCard key={test.id} test={test} onStart={startTest} onViewResults={viewResults} />
+              <div
+                key={test.id}
+                ref={(el) => { testCardRefs.current[test.id] = el; }}
+                className={`relative transition-all duration-500 rounded-2xl ${
+                  highlightedTestId === test.id
+                    ? 'ring-4 ring-teal-400 ring-offset-2 shadow-[0_0_30px_rgba(20,184,166,0.4)]'
+                    : ''
+                }`}
+              >
+                {highlightedTestId === test.id && (
+                  <motion.div
+                    className="absolute inset-0 rounded-2xl pointer-events-none z-20"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0.3, 0.6, 0.3] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, rgba(45, 212, 191, 0.1) 100%)',
+                      boxShadow: '0 0 40px rgba(20, 184, 166, 0.25)'
+                    }}
+                  />
+                )}
+                <TestCard test={test} onStart={startTest} onViewResults={viewResults} />
+              </div>
             ))}
           </div>
         )}

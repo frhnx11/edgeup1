@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Calendar,
@@ -10,6 +11,7 @@ import {
   ClipboardCheck
 } from 'lucide-react';
 import { DashboardLayout } from '../../../../layouts/DashboardLayout';
+import { PreGeneratedVoiceAgent } from '../../../../components/upsc/common/PreGeneratedVoiceAgent';
 import { CalendarPage } from './CalendarPage';
 import { ClassesPage } from './ClassesPage';
 import { PerformancePage } from './PerformancePage';
@@ -27,8 +29,21 @@ type TabType =
   | 'syllabus'
   | 'tests';
 
+const VALID_TABS: TabType[] = ['calendar', 'classes', 'performance', 'tasks', 'resources', 'syllabus', 'tests'];
+
 const StudyPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabType>('calendar');
+
+  // Read tab from URL query params on mount and when params change
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && VALID_TABS.includes(tabParam as TabType)) {
+      setActiveTab(tabParam as TabType);
+      // Clear the query param after applying it
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Scroll to top when tab changes
   useEffect(() => {
@@ -168,6 +183,9 @@ const StudyPage: React.FC = () => {
           {renderContent()}
         </motion.div>
       </div>
+
+      {/* Voice Agent */}
+      <PreGeneratedVoiceAgent currentTab={activeTab} position="bottom-right" />
     </DashboardLayout>
   );
 };

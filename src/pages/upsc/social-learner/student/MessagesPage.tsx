@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WelcomeTooltip } from '../../../../components/upsc/common/WelcomeTooltip';
 import {
   Search,
   Send,
@@ -179,7 +178,6 @@ export function MessagesPage() {
   return (
     <>
       <div className="h-[calc(100vh-2rem)] flex rounded-2xl overflow-hidden border-2 border-gray-200 bg-white shadow-lg">
-        <WelcomeTooltip message="Connect and collaborate with your peers." />
 
         {/* Left Panel - Contact List */}
         <div className={`w-96 border-r border-gray-200 flex flex-col bg-white ${selectedContact ? 'hidden md:flex' : 'flex'}`}>

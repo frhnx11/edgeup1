@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WelcomeTooltip } from '../../../../components/upsc/common/WelcomeTooltip';
 import {
   Calendar,
   Clock,
@@ -179,12 +178,15 @@ const SectionHeader = ({ icon: Icon, title, subtitle, action }) => {
 
 export function ClassesPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('all');
   const [selectedDay, setSelectedDay] = useState<'yesterday' | 'today' | 'tomorrow'>('today');
   const [showFirstPopup, setShowFirstPopup] = useState(false);
   const [showSecondPopup, setShowSecondPopup] = useState(false);
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+  const [highlightedClassId, setHighlightedClassId] = useState<string | null>(null);
+  const classCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const subjects = ['Geography', 'History', 'Current Affairs', 'Economics', 'Polity'];
 
@@ -424,6 +426,43 @@ export function ClassesPage() {
     }
   ];
 
+  // Handle highlight from localStorage (for AI navigation)
+  useEffect(() => {
+    const highlightId = localStorage.getItem('highlightClassId');
+    if (highlightId) {
+      // Clear localStorage immediately
+      localStorage.removeItem('highlightClassId');
+
+      // Find the class and set the correct day filter
+      const classToHighlight = classes.find(c => c.id === highlightId);
+      if (classToHighlight) {
+        setSelectedDay(classToHighlight.day);
+        setHighlightedClassId(highlightId);
+
+        // Scroll to bottom of page after a delay to let content render
+        const scrollToClass = () => {
+          const cardElement = classCardRefs.current[highlightId];
+          if (cardElement) {
+            cardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          } else {
+            // Fallback: scroll to bottom of page
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+          }
+        };
+
+        // Multiple attempts to ensure scroll works after render
+        setTimeout(scrollToClass, 500);
+        setTimeout(scrollToClass, 1000);
+        setTimeout(scrollToClass, 2000);
+
+        // Clear highlight after animation (6 seconds)
+        setTimeout(() => {
+          setHighlightedClassId(null);
+        }, 6000);
+      }
+    }
+  }, [classes]);
+
   const handleEnterClass = (classItem: Class) => {
     setSelectedClass(classItem);
     setShowFirstPopup(true);
@@ -516,7 +555,6 @@ export function ClassesPage() {
   return (
       <>
       <div className="space-y-6">
-        <WelcomeTooltip message="Join live sessions or catch up on recorded classes anytime." />
 
         {/* Header with Enhanced Stats */}
         <FuturisticCard className="p-6 rounded-2xl" delay={0}>
@@ -688,12 +726,33 @@ export function ClassesPage() {
             </FuturisticCard>
           ) : (
             filteredClasses.map((classItem, index) => (
-              <FuturisticCard
+              <div
                 key={classItem.id}
-                className="rounded-2xl overflow-hidden"
-                delay={0.4 + index * 0.1}
-                neonGlow={classItem.liveStatus === 'live'}
+                ref={(el) => { classCardRefs.current[classItem.id] = el; }}
+                className={`relative transition-all duration-500 ${
+                  highlightedClassId === classItem.id
+                    ? 'ring-4 ring-teal-400 ring-offset-2 rounded-2xl shadow-[0_0_30px_rgba(20,184,166,0.4)]'
+                    : ''
+                }`}
               >
+                {/* Highlight Glow Animation */}
+                {highlightedClassId === classItem.id && (
+                  <motion.div
+                    className="absolute inset-0 rounded-2xl pointer-events-none z-10"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0.3, 0.6, 0.3] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, rgba(45, 212, 191, 0.1) 100%)',
+                      boxShadow: '0 0 40px rgba(20, 184, 166, 0.25)'
+                    }}
+                  />
+                )}
+                <FuturisticCard
+                  className="rounded-2xl overflow-hidden"
+                  delay={0.4 + index * 0.1}
+                  neonGlow={classItem.liveStatus === 'live' || highlightedClassId === classItem.id}
+                >
                 {/* Status Bar */}
                 <div className={`h-1.5 ${
                   classItem.liveStatus === 'live' ? 'bg-gradient-to-r from-red-500 via-red-400 to-red-500' :
@@ -783,6 +842,7 @@ export function ClassesPage() {
                   </motion.button>
                 </div>
               </FuturisticCard>
+              </div>
             ))
           )}
         </div>

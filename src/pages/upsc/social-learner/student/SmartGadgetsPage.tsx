@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { WelcomeTooltip } from '../../../../components/upsc/common/WelcomeTooltip';
 import {
   Laptop,
   Watch,
@@ -214,7 +213,6 @@ export function SmartGadgetsPage() {
 
   return (
       <div className="space-y-6">
-        <WelcomeTooltip message="Explore AI-powered tools to enhance your learning." />
 
         {/* Header */}
         <div className="flex justify-between items-center">

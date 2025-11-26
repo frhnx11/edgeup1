@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
 import { generateQuestions, generateThoughtChain } from '../../../../utils/openai';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WelcomeTooltip } from '../../../../components/upsc/common/WelcomeTooltip';
 import {
   Brain,
   Target,
@@ -418,7 +417,6 @@ export function QuestionGenerationPage() {
       </AnimatePresence>
 
       <div className="space-y-6 relative">
-        <WelcomeTooltip message="Generate practice questions using AI to test your knowledge." />
 
         {/* Header */}
         <motion.div

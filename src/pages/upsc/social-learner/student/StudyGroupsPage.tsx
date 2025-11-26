@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WelcomeTooltip } from '../../../../components/upsc/common/WelcomeTooltip';
 import {
   Users,
   Plus,
@@ -147,7 +146,6 @@ export function StudyGroupsPage() {
   return (
     <>
       <div className="min-h-screen">
-        <WelcomeTooltip message="Join study groups and learn together!" />
 
         {/* Header */}
         <motion.div

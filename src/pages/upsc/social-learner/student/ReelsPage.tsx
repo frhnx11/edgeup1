@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WelcomeTooltip } from '../../../../components/upsc/common/WelcomeTooltip';
 import {
   Play,
   Clock,
@@ -186,7 +185,6 @@ export function ReelsPage() {
   return (
     <>
       <div className="min-h-screen">
-        <WelcomeTooltip message="Learn through engaging short-form educational videos!" />
 
         {/* Header */}
         <motion.div

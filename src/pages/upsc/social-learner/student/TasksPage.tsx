@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WelcomeTooltip } from '../../../../components/upsc/common/WelcomeTooltip';
 import {
   CheckCircle,
   Circle,
@@ -385,7 +384,6 @@ export function TasksPage() {
 
   return (
       <div className="max-w-7xl mx-auto p-6">
-        <WelcomeTooltip message="Manage your assignments and homework efficiently." />
 
         {/* Header */}
         <div className="mb-8">

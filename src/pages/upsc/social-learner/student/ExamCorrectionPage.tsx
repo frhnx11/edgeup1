@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { createWorker } from 'tesseract.js';
 import { analyzeExamPaper } from '../../../../utils/openai';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WelcomeTooltip } from '../../../../components/upsc/common/WelcomeTooltip';
 import {
   Upload,
   FileText,
@@ -435,7 +434,6 @@ export function ExamCorrectionPage() {
       </div>
 
       <div className="space-y-6 relative">
-        <WelcomeTooltip message="Get instant AI-powered feedback on your answer writing." />
 
         {/* Header */}
         <motion.div

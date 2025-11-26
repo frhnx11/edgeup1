@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WelcomeTooltip } from '../../../../components/upsc/common/WelcomeTooltip';
 import {
   Users,
   Clock,
@@ -1067,7 +1066,6 @@ export function QuizzesPage() {
   return (
     <>
       <div className="min-h-screen">
-        <WelcomeTooltip message="Challenge yourself with interactive quizzes!" />
 
         {/* Header */}
         <motion.div

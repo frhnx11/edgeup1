@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Play, MessageCircle, Users, Trophy } from 'lucide-react';
 import { DashboardLayout } from '../../../../layouts/DashboardLayout';
+import { PreGeneratedVoiceAgent } from '../../../../components/upsc/common/PreGeneratedVoiceAgent';
 import { ReelsPage } from './ReelsPage';
 import { MessagesPage } from './MessagesPage';
 import { StudyGroupsPage } from './StudyGroupsPage';
@@ -9,8 +11,21 @@ import { QuizzesPage } from './QuizzesPage';
 
 type TabType = 'reels' | 'messages' | 'study-groups' | 'quizzes';
 
+const VALID_TABS: TabType[] = ['reels', 'messages', 'study-groups', 'quizzes'];
+
 const SocialLearnerPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabType>('reels');
+
+  // Read tab from URL query params on mount and when params change
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && VALID_TABS.includes(tabParam as TabType)) {
+      setActiveTab(tabParam as TabType);
+      // Clear the query param after applying it
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Scroll to top when tab changes
   useEffect(() => {
@@ -118,6 +133,9 @@ const SocialLearnerPage: React.FC = () => {
           {renderContent()}
         </motion.div>
       </div>
+
+      {/* Voice Agent */}
+      <PreGeneratedVoiceAgent currentTab={activeTab} position="bottom-right" />
     </DashboardLayout>
   );
 };

@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { WelcomeTooltip } from '../../../../components/upsc/common/WelcomeTooltip';
 import { 
   Calendar, 
   ChevronLeft, 
@@ -5557,7 +5556,6 @@ export function CalendarPage() {
 
   return (
       <div className="space-y-6">
-        <WelcomeTooltip message="Stay organized! Track your classes, tests, and study sessions in one place." />
 
         {/* Header with stats */}
         <div className="bg-gradient-to-r from-brand-primary via-brand-secondary to-brand-accent rounded-2xl p-6 text-white">

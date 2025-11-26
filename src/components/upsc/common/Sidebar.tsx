@@ -29,7 +29,11 @@ import {
   Gauge,
   ClipboardList,
   Menu,
-  X
+  X,
+  Volume2,
+  VolumeX,
+  MessageSquare,
+  MessageSquareOff
 } from 'lucide-react';
 import { useRole } from '../../../contexts/RoleContext';
 
@@ -45,6 +49,26 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const { currentRole, setRole } = useRole();
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isAudioMuted, setIsAudioMuted] = useState(() => {
+    return localStorage.getItem('eustad-audio-muted') === 'true';
+  });
+  const [isTextDisabled, setIsTextDisabled] = useState(() => {
+    return localStorage.getItem('eustad-text-disabled') === 'true';
+  });
+
+  // Toggle audio mute
+  const toggleAudioMute = () => {
+    const newMuted = !isAudioMuted;
+    setIsAudioMuted(newMuted);
+    localStorage.setItem('eustad-audio-muted', String(newMuted));
+  };
+
+  // Toggle text popups
+  const toggleTextPopups = () => {
+    const newDisabled = !isTextDisabled;
+    setIsTextDisabled(newDisabled);
+    localStorage.setItem('eustad-text-disabled', String(newDisabled));
+  };
 
   // Detect screen size
   useEffect(() => {
@@ -146,13 +170,47 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             <X className="w-5 h-5 text-gray-600" />
           </button>
         )}
-      {/* Logo */}
-      <div className="p-6 border-b border-gray-200">
-        <img 
-          src="/Logo.png" 
-          alt="Edgeup Logo" 
+      {/* Logo with Text & Audio Toggles */}
+      <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+        <img
+          src="/Logo.png"
+          alt="Edgeup Logo"
           className="h-12 object-contain"
         />
+        <div className="flex items-center gap-2">
+          {/* Text Popup Toggle */}
+          <button
+            onClick={toggleTextPopups}
+            className={`p-2.5 rounded-xl transition-all ${
+              isTextDisabled
+                ? 'bg-red-100 text-red-600 hover:bg-red-200'
+                : 'bg-teal-100 text-teal-600 hover:bg-teal-200'
+            }`}
+            title={isTextDisabled ? 'Enable Text Popups' : 'Disable Text Popups'}
+          >
+            {isTextDisabled ? (
+              <MessageSquareOff className="w-5 h-5" />
+            ) : (
+              <MessageSquare className="w-5 h-5" />
+            )}
+          </button>
+          {/* Audio Toggle */}
+          <button
+            onClick={toggleAudioMute}
+            className={`p-2.5 rounded-xl transition-all ${
+              isAudioMuted
+                ? 'bg-red-100 text-red-600 hover:bg-red-200'
+                : 'bg-teal-100 text-teal-600 hover:bg-teal-200'
+            }`}
+            title={isAudioMuted ? 'Unmute Audio' : 'Mute Audio'}
+          >
+            {isAudioMuted ? (
+              <VolumeX className="w-5 h-5" />
+            ) : (
+              <Volume2 className="w-5 h-5" />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* User Profile */}

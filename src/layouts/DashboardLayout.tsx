@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState, useMemo } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Menu } from 'lucide-react';
@@ -7,7 +7,6 @@ import { EUstaadConsentModal } from '../components/upsc/common/eUstaadConsentMod
 import { useEUstaadTracking } from '../hooks/useEUstaadTracking';
 import { useEUstaadStore } from '../store/useEUstaadStore';
 import { PreGeneratedVoiceAgent } from '../components/upsc/common/PreGeneratedVoiceAgent';
-import { getVoiceMessageForRoute } from '../config/voiceMessages';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -46,27 +45,22 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   // Get user's personality type
   const userStudentType = localStorage.getItem('userStudentType') || 'social-learner';
 
-  // Memoize the voice message data based on current route
-  const voiceMessage = useMemo(() => {
-    return getVoiceMessageForRoute(location.pathname);
-  }, [location.pathname]);
+  // Determine current tab from route for voice agent
+  const getCurrentTab = () => {
+    const path = location.pathname;
+    if (path.includes('/dashboard')) return 'dashboard';
+    if (path.includes('/social-learner/student/social-learner')) return 'social-learner';
+    return null; // Pages with internal tabs handle their own voice agent
+  };
 
-  // Check if current page has tab-specific audio (to avoid duplicate agents)
-  // Only hide on pages with tabs, not on dashboards
-  const hasTabSpecificAudio =
+  const currentTab = getCurrentTab();
+
+  // Pages with internal tabs handle their own voice agent
+  const hasInternalTabs =
     location.pathname.includes('/study') ||
     location.pathname.includes('/development') ||
     location.pathname.includes('/personal') ||
-    (location.pathname.includes('/academic-achiever') && !location.pathname.endsWith('/dashboard')) ||
-    (location.pathname.includes('/social-learner') && !location.pathname.endsWith('/dashboard'));
-
-  // Log route changes
-  useEffect(() => {
-    console.log('📍 DashboardLayout v6.12: Route changed to:', location.pathname);
-    console.log('🎵 Voice message key:', voiceMessage.key);
-    console.log('👤 User type:', userStudentType);
-    console.log('🎭 Has tab-specific audio:', hasTabSpecificAudio);
-  }, [location.pathname, voiceMessage.key, userStudentType, hasTabSpecificAudio]);
+    location.pathname.includes('/social-learner/student/social-learner');
 
   // Initialize activity tracking
   useEUstaadTracking();
@@ -139,12 +133,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
       </main>
 
-      {/* Robot-Bot AI Assistant v6.12 - Only show on dashboard/main routes */}
-      {!hasTabSpecificAudio && (
+      {/* Robot-Bot AI Assistant - Only for pages without internal tabs */}
+      {!hasInternalTabs && currentTab && (
         <PreGeneratedVoiceAgent
-          messageKey={voiceMessage.key}
-          message={voiceMessage.text}
-          autoPlay={true}
+          currentTab={currentTab}
           position="bottom-right"
         />
       )}
