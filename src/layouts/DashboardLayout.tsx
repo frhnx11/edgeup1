@@ -42,14 +42,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     });
   }, [location.pathname]);
 
-  // Get user's personality type
-  const userStudentType = localStorage.getItem('userStudentType') || 'social-learner';
+  // Get user data
+  const userData = JSON.parse(localStorage.getItem('userData') || '{}');
 
   // Determine current tab from route for voice agent
   const getCurrentTab = () => {
     const path = location.pathname;
     if (path.includes('/dashboard')) return 'dashboard';
     if (path.includes('/social-learner/student/social-learner')) return 'social-learner';
+    if (path.includes('/creative-explorer/student/creative-explorer')) return 'creative-explorer';
     return null; // Pages with internal tabs handle their own voice agent
   };
 
@@ -60,7 +61,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     location.pathname.includes('/study') ||
     location.pathname.includes('/development') ||
     location.pathname.includes('/personal') ||
-    location.pathname.includes('/social-learner/student/social-learner');
+    location.pathname.includes('/social-learner/student/social-learner') ||
+    location.pathname.includes('/creative-explorer/student/creative-explorer');
 
   // Initialize activity tracking
   useEUstaadTracking();
@@ -193,7 +195,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2, duration: 0.3 }}
                 >
-                  Hello {userStudentType === 'academic-achiever' ? 'Academic Achiever' : 'Social Learner'}! Welcome to your Dashboard
+                  Hello{userData.name ? ` ${userData.name}` : ''}! Welcome to your Dashboard
                 </motion.p>
 
                 {/* Speech bubble tail pointing down-right */}

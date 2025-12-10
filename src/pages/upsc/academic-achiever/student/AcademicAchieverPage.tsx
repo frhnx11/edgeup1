@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { BarChart3, Award, Gauge, ClipboardList, Trophy } from 'lucide-react';
 import { DashboardLayout } from '../../../../layouts/DashboardLayout';
 import { PreGeneratedVoiceAgent } from '../../../../components/upsc/common/PreGeneratedVoiceAgent';
@@ -68,39 +68,10 @@ const AcademicAchieverPage: React.FC = () => {
     }
   ];
 
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'advanced-analytics':
-        return <AdvancedAnalyticsPage />;
-      case 'leaderboard':
-        return <LeaderboardPage />;
-      case 'readiness-score':
-        return <ReadinessScorePage />;
-      case 'test-analytics':
-        return <TestAnalyticsPage />;
-      case 'quizzes':
-        return <QuizzesPage />;
-      default:
-        return <AdvancedAnalyticsPage />;
-    }
-  };
 
   const getColorClasses = (color: string, isActive: boolean) => {
     if (isActive) {
-      switch (color) {
-        case 'blue':
-          return 'bg-blue-500 text-white';
-        case 'purple':
-          return 'bg-purple-500 text-white';
-        case 'green':
-          return 'bg-green-500 text-white';
-        case 'orange':
-          return 'bg-orange-500 text-white';
-        case 'pink':
-          return 'bg-pink-500 text-white';
-        default:
-          return 'bg-brand-primary text-white';
-      }
+      return 'bg-brand-primary text-white';
     }
     return 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200';
   };
@@ -133,15 +104,21 @@ const AcademicAchieverPage: React.FC = () => {
         </div>
 
         {/* Content Area */}
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-        >
-          {renderContent()}
-        </motion.div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            {activeTab === 'advanced-analytics' && <AdvancedAnalyticsPage />}
+            {activeTab === 'leaderboard' && <LeaderboardPage />}
+            {activeTab === 'readiness-score' && <ReadinessScorePage />}
+            {activeTab === 'test-analytics' && <TestAnalyticsPage />}
+            {activeTab === 'quizzes' && <QuizzesPage />}
+          </motion.div>
+        </AnimatePresence>
 
         {/* Tab-specific voice agent - plays when tabs change */}
         {showTabAudio && (

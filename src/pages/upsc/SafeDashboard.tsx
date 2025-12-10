@@ -1,4 +1,4 @@
-import { Component, ErrorBoundary, ReactNode } from 'react';
+import { Component, ReactNode } from 'react';
 
 class DashboardErrorBoundary extends Component<
   { children: ReactNode },
@@ -56,18 +56,11 @@ class DashboardErrorBoundary extends Component<
   }
 }
 
-// Lazy load the actual dashboards
+// Lazy load the actual dashboard
 import { lazy, Suspense } from 'react';
-import { useLocation } from 'react-router-dom';
 
 const SocialLearnerDashboard = lazy(() =>
   import('./social-learner/student/DashboardPage').then(module => ({
-    default: module.DashboardPage
-  }))
-);
-
-const AcademicAchieverDashboard = lazy(() =>
-  import('./academic-achiever/student/DashboardPage').then(module => ({
     default: module.DashboardPage
   }))
 );
@@ -82,15 +75,10 @@ const LoadingDashboard = () => (
 );
 
 export function SafeDashboard() {
-  const location = useLocation();
-
-  // Determine which dashboard to load based on route
-  const isAcademicAchiever = location.pathname.includes('academic-achiever');
-
   return (
     <DashboardErrorBoundary>
       <Suspense fallback={<LoadingDashboard />}>
-        {isAcademicAchiever ? <AcademicAchieverDashboard /> : <SocialLearnerDashboard />}
+        <SocialLearnerDashboard />
       </Suspense>
     </DashboardErrorBoundary>
   );

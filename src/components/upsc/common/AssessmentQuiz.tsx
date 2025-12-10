@@ -18,7 +18,7 @@ RESULT: Steady Progresser now requires genuine balance WITHOUT strong tendencies
 */
 
 interface AssessmentQuizProps {
-  onComplete?: (archetype: string) => void;
+  onComplete?: (archetype: string, rawScores?: Record<string, number>) => void;
 }
 
 const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
@@ -37,8 +37,6 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
   const [countdown, setCountdown] = useState(10);
   const [reactionQuestionVersion, setReactionQuestionVersion] = useState(0);
   const [showTimeoutMessage, setShowTimeoutMessage] = useState(false);
-  const [showSkipWarning, setShowSkipWarning] = useState(false);
-  const [showArchetypeSelection, setShowArchetypeSelection] = useState(false);
 
   // REBALANCED: Much stricter requirements to prevent Steady Progresser dominance
   const archetypeSignatures = {
@@ -754,7 +752,8 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
     } else {
       const calculatedResults = calculateResults();
       setResults(calculatedResults);
-      setStage('results');
+      // Skip results page - directly call onComplete to go to PersonalityReviewPage
+      onComplete?.(calculatedResults?.primaryArchetype?.name || '', calculatedResults?.rawScores || {});
     }
   };
 
@@ -818,31 +817,6 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
     setStage('questions');
   };
 
-  const handleSkipClick = () => {
-    setShowArchetypeSelection(true);
-  };
-
-  const handleArchetypeSelect = (selectedArchetype: string) => {
-    setShowArchetypeSelection(false);
-    // Directly complete the assessment with selected archetype
-    onComplete?.(selectedArchetype);
-  };
-
-  const handleSkipWarningContinue = () => {
-    setShowSkipWarning(false);
-    // Set default archetype to Academic Achiever for college students
-    const defaultArchetype = 'Academic Achiever';
-    const defaultResults = {
-      archetype: defaultArchetype,
-      confidence: 'low',
-      percentage: 50,
-      description: archetypeSignatures[defaultArchetype]?.description || '',
-      scores: {}
-    };
-    setResults(defaultResults);
-    setStage('results');
-  };
-
   const handleRestart = () => {
     setStage('welcome');
     setCurrentQuestion(0);
@@ -900,21 +874,21 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
 
   if (stage === 'welcome') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center p-2 sm:p-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-brand-light flex items-center justify-center p-2 sm:p-4">
         <div className="max-w-4xl w-full bg-white rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden">
           {/* Header Section */}
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 sm:p-8 text-white">
+          <div className="bg-gradient-to-r from-brand-primary to-brand-secondary p-4 sm:p-8 text-white">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
               <div className="flex items-center gap-2 sm:gap-3">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-lg flex items-center justify-center text-xl sm:text-2xl flex-shrink-0">📊</div>
                 <div>
                   <h1 className="text-xl sm:text-3xl font-bold">PASCO Learning Assessment</h1>
-                  <p className="text-indigo-100 text-xs sm:text-sm">Personality, Aptitude, Skills, Character Optimization</p>
+                  <p className="text-white/80 text-xs sm:text-sm">Personality, Aptitude, Skills, Character Optimization</p>
                 </div>
               </div>
               <div className="text-left sm:text-right">
-                <div className="text-xs sm:text-sm text-indigo-100">Version 2.0</div>
-                <div className="text-xs text-indigo-200">Rebalanced Algorithm</div>
+                <div className="text-xs sm:text-sm text-white/80">Version 2.0</div>
+                <div className="text-xs text-white/60">Rebalanced Algorithm</div>
               </div>
             </div>
           </div>
@@ -942,8 +916,8 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
                 <div className="text-gray-700 text-xs sm:text-sm font-medium">Minutes</div>
                 <div className="text-gray-500 text-xs">Average time</div>
               </div>
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-3 sm:p-4 rounded-lg sm:rounded-xl border border-purple-200">
-                <div className="text-purple-600 font-bold text-xl sm:text-2xl mb-1">10</div>
+              <div className="bg-gradient-to-br from-brand-primary/5 to-brand-primary/10 p-3 sm:p-4 rounded-lg sm:rounded-xl border border-brand-primary/20">
+                <div className="text-brand-primary font-bold text-xl sm:text-2xl mb-1">10</div>
                 <div className="text-gray-700 text-xs sm:text-sm font-medium">Archetypes</div>
                 <div className="text-gray-500 text-xs">Distinct profiles</div>
               </div>
@@ -960,28 +934,28 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600 font-bold text-sm flex-shrink-0">1</div>
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-brand-primary/10 rounded-lg flex items-center justify-center text-brand-primary font-bold text-sm flex-shrink-0">1</div>
                     <h4 className="font-semibold text-gray-900 text-sm sm:text-base">Adaptive Branching</h4>
                   </div>
                   <p className="text-gray-600 text-xs sm:text-sm">Questions dynamically adjust based on your initial responses for deeper profiling</p>
                 </div>
                 <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600 font-bold text-sm flex-shrink-0">2</div>
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-brand-primary/10 rounded-lg flex items-center justify-center text-brand-primary font-bold text-sm flex-shrink-0">2</div>
                     <h4 className="font-semibold text-gray-900 text-sm sm:text-base">Multi-Modal Input</h4>
                   </div>
                   <p className="text-gray-600 text-xs sm:text-sm">Visual, slider, ranking, and reaction-based questions capture comprehensive data</p>
                 </div>
                 <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600 font-bold text-sm flex-shrink-0">3</div>
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-brand-primary/10 rounded-lg flex items-center justify-center text-brand-primary font-bold text-sm flex-shrink-0">3</div>
                     <h4 className="font-semibold text-gray-900 text-sm sm:text-base">Weighted Scoring</h4>
                   </div>
                   <p className="text-gray-600 text-xs sm:text-sm">Advanced algorithm with required traits, bonuses, and penalty factors</p>
                 </div>
                 <div className="border border-gray-200 rounded-lg p-3 sm:p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600 font-bold text-sm flex-shrink-0">4</div>
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 bg-brand-primary/10 rounded-lg flex items-center justify-center text-brand-primary font-bold text-sm flex-shrink-0">4</div>
                     <h4 className="font-semibold text-gray-900 text-sm sm:text-base">Confidence Metrics</h4>
                   </div>
                   <p className="text-gray-600 text-xs sm:text-sm">Statistical validation ensures high-confidence archetype identification</p>
@@ -1020,76 +994,14 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
             {/* CTA Button */}
             <button
               onClick={handleStart}
-              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 sm:py-4 rounded-lg sm:rounded-xl font-semibold text-base sm:text-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+              className="w-full bg-gradient-to-r from-brand-primary to-brand-secondary text-white py-3 sm:py-4 rounded-lg sm:rounded-xl font-semibold text-base sm:text-lg hover:from-brand-dark hover:to-brand-accent transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
             >
               Begin Assessment →
             </button>
             <p className="text-center text-gray-500 text-xs sm:text-sm mt-2 sm:mt-3">
               Estimated completion time: 7-10 minutes
             </p>
-
-            {/* Skip Button */}
-            <div className="text-center mt-4">
-              <button
-                onClick={handleSkipClick}
-                className="text-indigo-600 text-sm hover:text-indigo-800 transition duration-200 font-medium flex items-center gap-2 mx-auto"
-              >
-                <span>⚡</span>
-                <span>Skip & Choose Your Learning Style Directly</span>
-              </button>
-            </div>
           </div>
-
-          {/* Archetype Selection Modal */}
-          {showArchetypeSelection && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-              <div className="bg-white rounded-xl shadow-2xl p-6 max-w-4xl w-full my-8">
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-2xl font-bold text-gray-900">Select Your Learning Style</h2>
-                    <button
-                      onClick={() => setShowArchetypeSelection(false)}
-                      className="text-gray-400 hover:text-gray-600 text-2xl"
-                    >
-                      ×
-                    </button>
-                  </div>
-                  <p className="text-gray-600">
-                    Choose the learning archetype that best describes you, or take the full assessment for a personalized recommendation.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto pr-2">
-                  {Object.keys(archetypeSignatures).map((archetype) => (
-                    <button
-                      key={archetype}
-                      onClick={() => handleArchetypeSelect(archetype)}
-                      className="text-left p-4 border-2 border-gray-200 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-all group"
-                    >
-                      <h3 className="font-bold text-lg text-gray-900 mb-2 group-hover:text-indigo-600">
-                        {archetype}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {archetypeSignatures[archetype].description}
-                      </p>
-                    </button>
-                  ))}
-                </div>
-
-                <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-                  <p className="text-sm text-gray-500 mb-3">
-                    Not sure? We recommend taking the full assessment for accurate results.
-                  </p>
-                  <button
-                    onClick={() => setShowArchetypeSelection(false)}
-                    className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition duration-200"
-                  >
-                    Take Full Assessment
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     );
@@ -1102,7 +1014,7 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
     const progress = ((answers.length + 1) / 20) * 100;
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 p-2 sm:p-4 py-4 sm:py-8">
+      <div className="min-h-screen bg-gradient-to-br from-brand-light via-blue-50 to-slate-50 p-2 sm:p-4 py-4 sm:py-8">
         <div className="max-w-4xl mx-auto">
           <div className="mb-4 sm:mb-6">
             <div className="flex justify-between text-xs sm:text-sm text-gray-600 mb-2">
@@ -1111,7 +1023,7 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2 sm:h-3">
               <div 
-                className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 sm:h-3 rounded-full transition-all duration-500"
+                className="bg-gradient-to-r from-brand-primary to-brand-secondary h-2 sm:h-3 rounded-full transition-all duration-500"
                 style={{ width: `${progress}%` }}
               ></div>
             </div>
@@ -1127,7 +1039,7 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
                     <button
                       key={index}
                       onClick={() => handleAnswer(option)}
-                      className="p-4 sm:p-6 rounded-xl border-2 border-gray-200 hover:border-purple-400 hover:bg-purple-50 transition-all duration-200 text-center transform hover:scale-105"
+                      className="p-4 sm:p-6 rounded-xl border-2 border-gray-200 hover:border-brand-primary hover:bg-brand-primary/5 transition-all duration-200 text-center transform hover:scale-105"
                     >
                       <div className="text-4xl sm:text-6xl mb-2 sm:mb-3">{option.emoji}</div>
                       <div className="font-bold text-sm sm:text-lg text-gray-900 mb-1 sm:mb-2">{option.title}</div>
@@ -1147,7 +1059,7 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
                     <button
                       key={index}
                       onClick={() => handleAnswer(option)}
-                      className="p-4 sm:p-6 rounded-xl border-2 border-gray-200 hover:border-purple-400 hover:bg-purple-50 transition-all duration-200 text-center transform hover:scale-105"
+                      className="p-4 sm:p-6 rounded-xl border-2 border-gray-200 hover:border-brand-primary hover:bg-brand-primary/5 transition-all duration-200 text-center transform hover:scale-105"
                     >
                       <div className="text-4xl sm:text-6xl mb-2 sm:mb-3">{option.image}</div>
                       <div className="font-bold text-sm sm:text-lg text-gray-900 mb-1 sm:mb-2">{option.title}</div>
@@ -1169,17 +1081,17 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
                     max={question.max}
                     value={sliderValue}
                     onChange={(e) => setSliderValue(parseInt(e.target.value))}
-                    className="w-full h-2 sm:h-3 bg-gradient-to-r from-purple-200 to-pink-200 rounded-lg appearance-none cursor-pointer"
+                    className="w-full h-2 sm:h-3 bg-gradient-to-r from-brand-primary/20 to-brand-secondary/20 rounded-lg appearance-none cursor-pointer"
                   />
                   <div className="flex justify-between text-xs sm:text-sm text-gray-600 mt-2">
                     <span className="text-left w-1/3">{question.leftLabel}</span>
-                    <span className="font-bold text-purple-600 text-base sm:text-lg">{sliderValue}</span>
+                    <span className="font-bold text-brand-primary text-base sm:text-lg">{sliderValue}</span>
                     <span className="text-right w-1/3">{question.rightLabel}</span>
                   </div>
                 </div>
                 <button
                   onClick={handleSliderSubmit}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition duration-200"
+                  className="w-full bg-gradient-to-r from-brand-primary to-brand-secondary text-white py-3 rounded-lg font-semibold hover:from-brand-dark hover:to-brand-accent transition duration-200"
                 >
                   Continue →
                 </button>
@@ -1242,10 +1154,10 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
                         setTouchStartY(null);
                         setTouchCurrentY(null);
                       }}
-                      className={`flex items-center p-3 sm:p-4 rounded-lg border-2 cursor-move hover:bg-purple-100 transition select-none ${
+                      className={`flex items-center p-3 sm:p-4 rounded-lg border-2 cursor-move hover:bg-brand-primary/10 transition select-none ${
                         draggedItem === index 
-                          ? 'bg-purple-200 border-purple-400 scale-105 shadow-lg z-10' 
-                          : 'bg-purple-50 border-purple-200'
+                          ? 'bg-brand-primary/20 border-brand-primary scale-105 shadow-lg z-10' 
+                          : 'bg-brand-primary/5 border-brand-primary/20'
                       }`}
                       style={{
                         touchAction: 'none',
@@ -1257,7 +1169,7 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
                         zIndex: draggedItem === index ? 10 : 1
                       }}
                     >
-                      <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-purple-600 text-white font-bold flex items-center justify-center mr-3 sm:mr-4 text-sm sm:text-base flex-shrink-0">
+                      <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-brand-primary text-white font-bold flex items-center justify-center mr-3 sm:mr-4 text-sm sm:text-base flex-shrink-0">
                         {index + 1}
                       </span>
                       <span className="text-gray-800 font-medium text-sm sm:text-base">{item.text}</span>
@@ -1267,7 +1179,7 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
                 </div>
                 <button
                   onClick={handleRankingSubmit}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition duration-200"
+                  className="w-full bg-gradient-to-r from-brand-primary to-brand-secondary text-white py-3 rounded-lg font-semibold hover:from-brand-dark hover:to-brand-accent transition duration-200"
                 >
                   Submit Ranking →
                 </button>
@@ -1315,10 +1227,10 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
               <div>
                 {question.scenario && (
                   <div className="mb-4 sm:mb-6">
-                    <div className="inline-block bg-gradient-to-r from-purple-100 to-pink-100 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-purple-700 font-semibold mb-3 sm:mb-4 text-xs sm:text-sm">
+                    <div className="inline-block bg-gradient-to-r from-brand-primary/10 to-brand-secondary/10 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-brand-primary font-semibold mb-3 sm:mb-4 text-xs sm:text-sm">
                       SCENARIO
                     </div>
-                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 sm:p-6 rounded-lg border-l-4 border-purple-500">
+                    <div className="bg-gradient-to-r from-brand-primary/5 to-brand-secondary/5 p-4 sm:p-6 rounded-lg border-l-4 border-brand-primary">
                       <p className="text-gray-800 text-sm sm:text-lg leading-relaxed italic">"{question.scenario}"</p>
                     </div>
                   </div>
@@ -1329,10 +1241,10 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
                     <button
                       key={index}
                       onClick={() => handleAnswer(option)}
-                      className="w-full text-left p-4 sm:p-5 rounded-xl border-2 border-gray-200 hover:border-purple-400 hover:bg-purple-50 transition-all duration-200"
+                      className="w-full text-left p-4 sm:p-5 rounded-xl border-2 border-gray-200 hover:border-brand-primary hover:bg-brand-primary/5 transition-all duration-200"
                     >
                       <div className="flex items-start">
-                        <span className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 text-white font-bold mr-3 sm:mr-4 flex items-center justify-center text-xs sm:text-sm">
+                        <span className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary text-white font-bold mr-3 sm:mr-4 flex items-center justify-center text-xs sm:text-sm">
                           {String.fromCharCode(65 + index)}
                         </span>
                         <span className="text-gray-800 text-sm sm:text-lg">{option.text}</span>
@@ -1346,7 +1258,7 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
             {currentQuestion > 0 && (
               <button
                 onClick={handleBack}
-                className="mt-6 sm:mt-8 text-purple-600 hover:text-purple-700 font-medium flex items-center text-sm sm:text-base"
+                className="mt-6 sm:mt-8 text-brand-primary hover:text-brand-dark font-medium flex items-center text-sm sm:text-base"
               >
                 <span className="mr-2">←</span> Previous question
               </button>
@@ -1407,16 +1319,16 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
     }).sort((a, b) => b.score - a.score);
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-2 sm:p-4 py-4 sm:py-8">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-brand-light p-2 sm:p-4 py-4 sm:py-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden mb-4 sm:mb-6">
-            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 sm:p-8 text-white">
+            <div className="bg-gradient-to-r from-brand-primary to-brand-secondary p-4 sm:p-8 text-white">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-4 sm:mb-6">
                 <div>
                   <div className="text-xs sm:text-sm font-semibold mb-1 sm:mb-2 opacity-90">PASCO Assessment Results</div>
                   <h1 className="text-2xl sm:text-4xl font-bold mb-1 sm:mb-2">Learning Archetype Analysis</h1>
-                  <p className="text-indigo-100 text-sm sm:text-base">Comprehensive Profile Report</p>
+                  <p className="text-white/80 text-sm sm:text-base">Comprehensive Profile Report</p>
                 </div>
                 <div className="text-left sm:text-right">
                   {results.confidence === 'high' && (
@@ -1481,11 +1393,11 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
                   <div key={index}>
                     <div className="flex justify-between text-xs sm:text-sm mb-1">
                       <span className="font-medium text-gray-700">{item.trait}</span>
-                      <span className="font-bold text-indigo-600">{item.score}</span>
+                      <span className="font-bold text-brand-primary">{item.score}</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2 sm:h-2.5">
                       <div
-                        className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 sm:h-2.5 rounded-full transition-all duration-500"
+                        className="bg-gradient-to-r from-brand-primary to-brand-secondary h-2 sm:h-2.5 rounded-full transition-all duration-500"
                         style={{ width: `${Math.min((item.score / Math.max(...topTraits.map(t => t.score))) * 100, 100)}%` }}
                       ></div>
                     </div>
@@ -1501,20 +1413,20 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
               </h3>
               <div className="space-y-2">
                 {archetypeComparison.slice(0, 5).map((item, index) => (
-                  <div key={index} className={`p-2 sm:p-3 rounded-lg ${index === 0 ? 'bg-indigo-50 border-2 border-indigo-300' : 'bg-gray-50'}`}>
+                  <div key={index} className={`p-2 sm:p-3 rounded-lg ${index === 0 ? 'bg-brand-primary/5 border-2 border-brand-primary/30' : 'bg-gray-50'}`}>
                     <div className="flex justify-between items-center mb-1">
-                      <span className={`font-semibold text-xs sm:text-sm ${index === 0 ? 'text-indigo-900' : 'text-gray-700'}`}>
+                      <span className={`font-semibold text-xs sm:text-sm ${index === 0 ? 'text-brand-dark' : 'text-gray-700'}`}>
                         {index === 0 && '👑 '}{item.name}
                       </span>
                       <div className="flex items-center gap-2">
-                        <span className={`font-bold text-xs sm:text-sm ${index === 0 ? 'text-indigo-600' : 'text-gray-600'}`}>
+                        <span className={`font-bold text-xs sm:text-sm ${index === 0 ? 'text-brand-primary' : 'text-gray-600'}`}>
                           {Math.round(item.score)}
                         </span>
                       </div>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-1.5">
                       <div
-                        className={`h-1.5 rounded-full ${index === 0 ? 'bg-gradient-to-r from-indigo-500 to-purple-500' : 'bg-gray-400'}`}
+                        className={`h-1.5 rounded-full ${index === 0 ? 'bg-gradient-to-r from-brand-primary to-brand-secondary' : 'bg-gray-400'}`}
                         style={{ width: `${Math.min((item.score / archetypeComparison[0].score) * 100, 100)}%` }}
                       ></div>
                     </div>
@@ -1566,7 +1478,7 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-2">
               <div>
                 <h2 className="text-lg sm:text-2xl font-bold text-gray-900 flex items-center">
-                  <span className="w-8 h-8 sm:w-10 sm:h-10 bg-indigo-100 rounded-lg flex items-center justify-center mr-2 sm:mr-3 text-lg sm:text-xl">🎯</span>
+                  <span className="w-8 h-8 sm:w-10 sm:h-10 bg-brand-primary/10 rounded-lg flex items-center justify-center mr-2 sm:mr-3 text-lg sm:text-xl">🎯</span>
                   Personalized Action Plan
                 </h2>
                 <p className="text-xs sm:text-base text-gray-600 mt-1">Evidence-based strategies tailored to your learning profile</p>
@@ -1574,9 +1486,9 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               {results.primaryArchetype.highSchoolTips.map((tip, index) => (
-                <div key={index} className="bg-gradient-to-br from-indigo-50 to-purple-50 p-3 sm:p-5 rounded-lg border border-indigo-200 hover:border-indigo-300 transition group">
+                <div key={index} className="bg-gradient-to-br from-brand-primary/5 to-brand-secondary/5 p-3 sm:p-5 rounded-lg border border-brand-primary/20 hover:border-brand-primary/30 transition group">
                   <div className="flex items-start">
-                    <span className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center font-bold mr-2 sm:mr-3 text-xs sm:text-base group-hover:scale-110 transition">
+                    <span className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-brand-primary text-white rounded-lg flex items-center justify-center font-bold mr-2 sm:mr-3 text-xs sm:text-base group-hover:scale-110 transition">
                       {index + 1}
                     </span>
                     <p className="text-xs sm:text-base text-gray-700 leading-relaxed">{tip}</p>
@@ -1600,8 +1512,8 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
                 <div className="text-2xl sm:text-3xl font-bold text-green-600">{answers.length}</div>
                 <div className="text-xs sm:text-sm text-gray-600 mt-1">Questions Answered</div>
               </div>
-              <div className="text-center p-3 sm:p-4 bg-purple-50 rounded-lg border border-purple-200">
-                <div className="text-2xl sm:text-3xl font-bold text-purple-600">
+              <div className="text-center p-3 sm:p-4 bg-brand-primary/5 rounded-lg border border-brand-primary/20">
+                <div className="text-2xl sm:text-3xl font-bold text-brand-primary">
                   {archetypeComparison.length}
                 </div>
                 <div className="text-xs sm:text-sm text-gray-600 mt-1">Archetypes Analyzed</div>
@@ -1619,13 +1531,13 @@ const AssessmentQuiz = ({ onComplete }: AssessmentQuizProps) => {
           <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-4 sm:mb-0">
             <button
               onClick={handleRestart}
-              className="bg-white text-indigo-600 px-6 sm:px-8 py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold hover:bg-gray-50 transition duration-200 shadow-lg border-2 border-indigo-600 text-base sm:text-lg"
+              className="bg-white text-brand-primary px-6 sm:px-8 py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold hover:bg-gray-50 transition duration-200 shadow-lg border-2 border-brand-primary text-base sm:text-lg"
             >
               <span className="mr-2">🔄</span> Retake Assessment
             </button>
             <button
-              onClick={() => onComplete?.(results?.primaryArchetype?.name || '')}
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold hover:from-indigo-700 hover:to-purple-700 transition duration-200 shadow-lg text-base sm:text-lg"
+              onClick={() => onComplete?.(results?.primaryArchetype?.name || '', results?.rawScores || {})}
+              className="bg-gradient-to-r from-brand-primary to-brand-secondary text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold hover:from-brand-dark hover:to-brand-accent transition duration-200 shadow-lg text-base sm:text-lg"
             >
               <span className="mr-2">🎯</span> Get Your Personalised Dashboard
             </button>

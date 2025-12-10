@@ -23,13 +23,8 @@ class AudioTracker {
   }
 
   private getCurrentUserType(): string {
-    const path = window.location.pathname;
-    if (path.includes('academic-achiever')) {
-      return 'academic-achiever';
-    } else if (path.includes('social-learner')) {
-      return 'social-learner';
-    }
-    return localStorage.getItem('userStudentType') || 'unknown';
+    // Using unified student type since we no longer have separate buckets
+    return 'student';
   }
 
   static getInstance(): AudioTracker {

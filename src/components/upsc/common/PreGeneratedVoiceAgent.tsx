@@ -8,13 +8,20 @@ import { ChatPopup } from './ChatPopup';
 // Voice messages for all tabs
 const TAB_MESSAGES: Record<string, string> = {
   // Main pages
-  'dashboard': "Hello Social Learner! Welcome to your Dashboard.",
+  'dashboard': "Hello Student! Welcome to your Dashboard.",
 
-  // Social Learner tabs
+  // PASCO Features tabs
+  'features-report': "Welcome to your personalized features! See your trait analysis and enabled features here.",
   'reels': "Watch educational reels and learn on the go!",
   'messages': "Connect and chat with your study buddies!",
-  'study-groups': "Join study groups and learn together!",
-  'quizzes': "Challenge yourself with fun quizzes!",
+  'study-groups': "Join study groups and learn together with peers!",
+  'quizzes': "Challenge yourself with fun quizzes and compete!",
+  'advanced-analytics': "Dive deep into your performance analytics and track your progress!",
+  'leaderboard': "See how you rank against other aspirants nationwide!",
+  'readiness-score': "Check your exam readiness and identify areas to improve!",
+  'test-analytics': "Analyze your mock test performance in detail!",
+  'mind-maps': "Create visual mind maps to organize and remember concepts!",
+  'focus-timer': "Use the Pomodoro timer to stay focused during study sessions!",
 
   // Study tabs
   'calendar': "Plan your study schedule and track important dates!",

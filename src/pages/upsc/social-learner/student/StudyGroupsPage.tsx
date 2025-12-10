@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users,
@@ -20,16 +19,23 @@ import {
   X,
   Lock,
   Unlock,
-  Image,
+  ArrowLeft,
+  LayoutDashboard,
+  Target,
+  Settings,
   Hash
 } from 'lucide-react';
+import { GroupDashboard } from '../../../../components/upsc/features/study-group/GroupDashboard';
+import { GroupMembers } from '../../../../components/upsc/features/study-group/GroupMembers';
+import { GroupTargets } from '../../../../components/upsc/features/study-group/GroupTargets';
+import { LiveStudy } from '../../../../components/upsc/features/study-group/LiveStudy';
 
 // Sample study groups data
 const studyGroupsData = [
   {
     id: 1,
     name: "History Hustlers",
-    description: "Crushing Modern & Ancient History together! 📚",
+    description: "Crushing Modern & Ancient History together!",
     topic: "History",
     members: 24,
     online: 8,
@@ -42,7 +48,7 @@ const studyGroupsData = [
   {
     id: 2,
     name: "Polity Pros",
-    description: "Constitutional nerds unite! Articles & amendments gang 🏛️",
+    description: "Constitutional nerds unite! Articles & amendments gang",
     topic: "Polity",
     members: 31,
     online: 12,
@@ -55,7 +61,7 @@ const studyGroupsData = [
   {
     id: 3,
     name: "Geography Gang",
-    description: "Maps, climate, and everything in between 🌍",
+    description: "Maps, climate, and everything in between",
     topic: "Geography",
     members: 19,
     online: 5,
@@ -68,7 +74,7 @@ const studyGroupsData = [
   {
     id: 4,
     name: "Economy Elite",
-    description: "Budget breakdowns & economic theories 💰",
+    description: "Budget breakdowns & economic theories",
     topic: "Economy",
     members: 27,
     online: 9,
@@ -81,7 +87,7 @@ const studyGroupsData = [
   {
     id: 5,
     name: "Ethics & Essay Squad",
-    description: "Perfecting answers & building perspectives ✍️",
+    description: "Perfecting answers & building perspectives",
     topic: "Ethics",
     members: 15,
     online: 3,
@@ -94,7 +100,7 @@ const studyGroupsData = [
   {
     id: 6,
     name: "Current Affairs Daily",
-    description: "Stay updated with daily news discussions 📰",
+    description: "Stay updated with daily news discussions",
     topic: "Current Affairs",
     members: 42,
     online: 18,
@@ -117,10 +123,20 @@ const topicOptions = [
   { value: 'general', label: 'General', icon: Hash }
 ];
 
+type GroupTabType = 'dashboard' | 'members' | 'targets' | 'live-study';
+
+const groupTabs = [
+  { id: 'dashboard' as GroupTabType, label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'members' as GroupTabType, label: 'Members', icon: Users },
+  { id: 'targets' as GroupTabType, label: 'Targets', icon: Target },
+  { id: 'live-study' as GroupTabType, label: 'Live Study', icon: Video },
+];
+
 export function StudyGroupsPage() {
-  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<typeof studyGroupsData[0] | null>(null);
+  const [activeGroupTab, setActiveGroupTab] = useState<GroupTabType>('dashboard');
   const [newGroup, setNewGroup] = useState({
     name: '',
     description: '',
@@ -131,7 +147,6 @@ export function StudyGroupsPage() {
 
   const handleCreateGroup = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle group creation logic here
     console.log('Creating group:', newGroup);
     setIsCreateModalOpen(false);
     setNewGroup({
@@ -143,10 +158,102 @@ export function StudyGroupsPage() {
     });
   };
 
+  const handleEnterGroup = (group: typeof studyGroupsData[0]) => {
+    setSelectedGroup(group);
+    setActiveGroupTab('dashboard');
+  };
+
+  const handleBackToGroups = () => {
+    setSelectedGroup(null);
+  };
+
+  const renderGroupContent = () => {
+    if (!selectedGroup) return null;
+
+    switch (activeGroupTab) {
+      case 'dashboard':
+        return <GroupDashboard group={selectedGroup} />;
+      case 'members':
+        return <GroupMembers group={selectedGroup} />;
+      case 'targets':
+        return <GroupTargets group={selectedGroup} />;
+      case 'live-study':
+        return <LiveStudy group={selectedGroup} />;
+      default:
+        return <GroupDashboard group={selectedGroup} />;
+    }
+  };
+
+  // Inner Group View
+  if (selectedGroup) {
+    const GroupIcon = selectedGroup.icon;
+
+    return (
+      <div className="min-h-full">
+        {/* Group Header */}
+        <div className="bg-white rounded-2xl shadow-lg mb-6 overflow-hidden">
+          <div className={`bg-gradient-to-r ${selectedGroup.gradient} p-6 text-white`}>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={handleBackToGroups}
+                className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+                <GroupIcon className="w-6 h-6" />
+              </div>
+              <div className="flex-1">
+                <h1 className="text-xl font-bold">{selectedGroup.name}</h1>
+                <p className="text-white/80 text-sm">
+                  {selectedGroup.topic} • {selectedGroup.members} members • {selectedGroup.online} online
+                </p>
+              </div>
+              <button className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all">
+                <Settings className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Inner Tabs */}
+          <div className="p-3 flex gap-2 overflow-x-auto">
+            {groupTabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveGroupTab(tab.id)}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm whitespace-nowrap transition-all ${
+                  activeGroupTab === tab.id
+                    ? 'bg-brand-primary text-white shadow-lg'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                <tab.icon className="w-4 h-4" />
+                <span>{tab.label}</span>
+                {tab.id === 'live-study' && (
+                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Group Content */}
+        <motion.div
+          key={activeGroupTab}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          {renderGroupContent()}
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Groups List View
   return (
     <>
-      <div className="min-h-screen">
-
+      <div className="min-h-full">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -155,18 +262,18 @@ export function StudyGroupsPage() {
         >
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold text-gray-800">
                 Study Groups
               </h1>
               <p className="text-gray-600 mt-1">
-                Squad up and study together! Learning hits different with friends 🔥
+                Squad up and study together! Learning hits different with friends
               </p>
             </div>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsCreateModalOpen(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-2xl font-semibold shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-all"
+              className="flex items-center gap-2 px-6 py-3 bg-brand-primary text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all"
             >
               <Plus className="w-5 h-5" />
               <span>Create New Group</span>
@@ -181,7 +288,7 @@ export function StudyGroupsPage() {
               placeholder="Search study groups... (e.g., 'History', 'Polity')"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white border-2 border-gray-200 rounded-2xl focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-white border-2 border-gray-200 rounded-2xl focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/20 transition-all"
             />
           </div>
         </motion.div>
@@ -193,7 +300,7 @@ export function StudyGroupsPage() {
           transition={{ delay: 0.1 }}
           className="grid grid-cols-3 gap-4 mb-8"
         >
-          <div className="bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl p-4 text-white">
+          <div className="bg-brand-primary rounded-2xl p-4 text-white">
             <div className="flex items-center gap-2 mb-1">
               <Users className="w-4 h-4 opacity-80" />
               <span className="text-sm opacity-80">Total Groups</span>
@@ -285,7 +392,7 @@ export function StudyGroupsPage() {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => navigate(`/upsc/student/study-groups/${group.id}`)}
+                    onClick={() => handleEnterGroup(group)}
                     className={`flex-1 flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r ${group.gradient} text-white rounded-xl font-medium text-sm shadow-md hover:shadow-lg transition-all`}
                   >
                     <span>Enter Group</span>
@@ -318,7 +425,7 @@ export function StudyGroupsPage() {
           transition={{ delay: 0.8 }}
           className="mt-8"
         >
-          <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-3xl p-8 text-white text-center">
+          <div className="bg-brand-primary rounded-3xl p-8 text-white text-center">
             <div className="w-16 h-16 mx-auto mb-4 bg-white/20 rounded-full flex items-center justify-center">
               <Crown className="w-8 h-8" />
             </div>
@@ -330,7 +437,7 @@ export function StudyGroupsPage() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsCreateModalOpen(true)}
-              className="px-8 py-3 bg-white text-purple-600 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all"
+              className="px-8 py-3 bg-white text-brand-primary rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all"
             >
               Create New Group
             </motion.button>
@@ -356,7 +463,7 @@ export function StudyGroupsPage() {
               className="w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden"
             >
               {/* Modal Header */}
-              <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-6 text-white">
+              <div className="bg-brand-primary p-6 text-white">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-2xl font-bold">Create Study Group</h2>
@@ -384,7 +491,7 @@ export function StudyGroupsPage() {
                     value={newGroup.name}
                     onChange={(e) => setNewGroup({ ...newGroup, name: e.target.value })}
                     placeholder="e.g., History Hustlers"
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/20 transition-all"
                   />
                 </div>
 
@@ -397,9 +504,9 @@ export function StudyGroupsPage() {
                     required
                     value={newGroup.description}
                     onChange={(e) => setNewGroup({ ...newGroup, description: e.target.value })}
-                    placeholder="What's your group about? Add some emojis to make it fun! 🔥"
+                    placeholder="What's your group about?"
                     rows={3}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all resize-none"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/20 transition-all resize-none"
                   />
                 </div>
 
@@ -416,7 +523,7 @@ export function StudyGroupsPage() {
                         onClick={() => setNewGroup({ ...newGroup, topic: topic.value })}
                         className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all ${
                           newGroup.topic === topic.value
-                            ? 'border-purple-500 bg-purple-50 text-purple-600'
+                            ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
                             : 'border-gray-200 hover:border-gray-300 text-gray-600'
                         }`}
                       >
@@ -439,9 +546,9 @@ export function StudyGroupsPage() {
                       max="50"
                       value={newGroup.maxMembers}
                       onChange={(e) => setNewGroup({ ...newGroup, maxMembers: parseInt(e.target.value) })}
-                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                      className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-brand-primary"
                     />
-                    <span className="w-12 text-center font-semibold text-purple-600">
+                    <span className="w-12 text-center font-semibold text-brand-primary">
                       {newGroup.maxMembers}
                     </span>
                   </div>
@@ -458,7 +565,7 @@ export function StudyGroupsPage() {
                       onClick={() => setNewGroup({ ...newGroup, isPrivate: false })}
                       className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 transition-all ${
                         !newGroup.isPrivate
-                          ? 'border-purple-500 bg-purple-50 text-purple-600'
+                          ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
                           : 'border-gray-200 hover:border-gray-300 text-gray-600'
                       }`}
                     >
@@ -470,7 +577,7 @@ export function StudyGroupsPage() {
                       onClick={() => setNewGroup({ ...newGroup, isPrivate: true })}
                       className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 transition-all ${
                         newGroup.isPrivate
-                          ? 'border-purple-500 bg-purple-50 text-purple-600'
+                          ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
                           : 'border-gray-200 hover:border-gray-300 text-gray-600'
                       }`}
                     >
@@ -499,9 +606,9 @@ export function StudyGroupsPage() {
                     type="submit"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="flex-1 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
+                    className="flex-1 py-3 bg-brand-primary text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
                   >
-                    Create Group 🚀
+                    Create Group
                   </motion.button>
                 </div>
               </form>

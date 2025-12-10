@@ -6,7 +6,8 @@
       "Bash(del \"C:\\Users\\ACER\\Desktop\\Latest\\.git\\index.lock\")",
       "Bash(git remote add:*)",
       "Bash(git branch:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

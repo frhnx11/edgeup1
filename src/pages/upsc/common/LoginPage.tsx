@@ -49,7 +49,7 @@ export function LoginPage() {
         localStorage.setItem('isAdmin', 'true');
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('userData', JSON.stringify({ name: 'Teacher', email, role: 'admin' }));
-        navigate('/teacher-stage-selection');
+        navigate('/upsc/teacher/dashboard');
       } else if (email === 'admin@edgeup.ai') {
         // Admin user logging in as student - bypass onboarding
         localStorage.setItem('isLoggedIn', 'true');
@@ -61,8 +61,8 @@ export function LoginPage() {
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('userData', JSON.stringify({ name: email.split('@')[0], email, role: 'student' }));
 
-        // Always navigate to goals page to select type and level
-        navigate('/goals');
+        // Navigate directly to quiz page
+        navigate('/quiz');
       } else {
         setError('Invalid credentials');
         setIsLoading(false);
@@ -115,8 +115,8 @@ export function LoginPage() {
     localStorage.setItem('userData', JSON.stringify(userData));
     localStorage.setItem('isLoggedIn', 'true');
 
-    // Always navigate to goals page to select type and level
-    navigate('/goals');
+    // Navigate directly to quiz page
+    navigate('/quiz');
   };
 
   return (

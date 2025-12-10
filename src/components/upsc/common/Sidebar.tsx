@@ -33,7 +33,8 @@ import {
   Volume2,
   VolumeX,
   MessageSquare,
-  MessageSquareOff
+  MessageSquareOff,
+  Sparkles
 } from 'lucide-react';
 import { useRole } from '../../../contexts/RoleContext';
 
@@ -81,25 +82,18 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Get user's stage and personality type
+  // Get user's stage
   const userStage = localStorage.getItem('userStage') || 'upsc';
-  const userStudentType = localStorage.getItem('userStudentType') || 'social-learner';
-  // Route based on personality type
-  const basePath = `/${userStage}/${userStudentType}/student`;
+  // Unified route path (no more student type segments)
+  const basePath = `/${userStage}/student`;
 
-  // Features ONLY for social-learner
-  const socialLearnerOnly = ['Social Learner'];
-
-  // Features ONLY for academic-achiever
-  const academicAchieverOnly = ['Academic Achiever'];
-
+  // Unified menu sections
   const menuSections = [
     {
       title: 'Dashboard',
       items: [
-        { path: `${basePath}/dashboard`, icon: LayoutDashboard, label: 'Overview' },
-        { path: `${basePath}/social-learner`, icon: Users, label: 'Social Learner' },
-        { path: `${basePath}/academic-achiever`, icon: Trophy, label: 'Academic Achiever' },
+        { path: `${basePath}/dashboard`, icon: LayoutDashboard, label: 'Dashboard' },
+        { path: `${basePath}/pasco-features`, icon: Sparkles, label: 'PASCO Features' },
       ]
     },
     {
@@ -120,18 +114,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         { path: `${basePath}/personal`, icon: User, label: 'Personal' }
       ]
     }
-  ].map(section => ({
-    ...section,
-    items: section.items.filter(item => {
-      if (userStudentType === 'academic-achiever') {
-        // For academic-achiever: show Academic Achiever, hide Social Learner
-        return !socialLearnerOnly.includes(item.label);
-      } else {
-        // For social-learner: show Social Learner, hide Academic Achiever
-        return !academicAchieverOnly.includes(item.label);
-      }
-    })
-  }));
+  ];
 
   const handleLogout = () => {
     localStorage.clear();

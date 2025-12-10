@@ -35,6 +35,11 @@ const NAVIGATION_MAP = {
     path: 'personal',
     tabs: ['mentor', 'smart-gadgets', 'pasco'],
     aliases: ['me', 'my', 'profile']
+  },
+  'pasco-features': {
+    path: 'pasco-features',
+    tabs: ['features-report', 'reels', 'messages', 'study-groups', 'quizzes', 'advanced-analytics', 'leaderboard', 'readiness-score', 'test-analytics', 'mind-maps', 'focus-timer', 'calendar'],
+    aliases: ['pasco', 'features', 'my features', 'personalized', 'trait features', 'pasco features']
   }
 };
 
@@ -79,7 +84,26 @@ const TAB_ALIASES: Record<string, string> = {
   'devices': 'smart-gadgets',
   'wearables': 'smart-gadgets',
   'assessment': 'pasco',
-  'profile assessment': 'pasco'
+  'profile assessment': 'pasco',
+  // PASCO Features aliases
+  'my features': 'features-report',
+  'trait analysis': 'features-report',
+  'personality': 'features-report',
+  'performance analytics': 'advanced-analytics',
+  'rankings': 'leaderboard',
+  'rank': 'leaderboard',
+  'compete': 'leaderboard',
+  'readiness': 'readiness-score',
+  'exam ready': 'readiness-score',
+  'preparation score': 'readiness-score',
+  'mock analysis': 'test-analytics',
+  'test analysis': 'test-analytics',
+  'mind map': 'mind-maps',
+  'mindmap': 'mind-maps',
+  'concept map': 'mind-maps',
+  'pomodoro': 'focus-timer',
+  'timer': 'focus-timer',
+  'focus': 'focus-timer'
 };
 
 interface NavigationResult {
@@ -144,6 +168,7 @@ Available pages and their tabs:
 - study (tabs: calendar, classes, performance, tasks, resources, syllabus, tests) - Study features
 - development (tabs: skills, question-generation, exam-correction) - Development features
 - personal (tabs: mentor, smart-gadgets, pasco) - Personal features
+- pasco-features (tabs: features-report, reels, messages, study-groups, quizzes, advanced-analytics, leaderboard, readiness-score, test-analytics, mind-maps, focus-timer, calendar) - Personalized PASCO features based on learning profile
 
 When user wants to navigate, respond ONLY with this exact JSON format (no other text):
 {"navigate": true, "page": "PAGE_NAME", "tab": "TAB_NAME", "message": "Taking you to PAGE/TAB!"}
@@ -169,6 +194,15 @@ Navigation Examples:
 - "show quizzes" → {"navigate": true, "page": "social-learner", "tab": "quizzes", "message": "Let's check out the Quizzes!"}
 - "go to dashboard" → {"navigate": true, "page": "dashboard", "message": "Taking you to the Dashboard!"}
 - "open mentor" → {"navigate": true, "page": "personal", "tab": "mentor", "message": "Connecting you with your Mentor!"}
+
+## PASCO FEATURES NAVIGATION
+When user asks about their personalized features, mind maps, focus timer, leaderboard, analytics, etc., navigate to pasco-features:
+- "show my features" → {"navigate": true, "page": "pasco-features", "tab": "features-report", "message": "Here are your personalized PASCO features!"}
+- "open mind maps" → {"navigate": true, "page": "pasco-features", "tab": "mind-maps", "message": "Opening Mind Maps for visual learning!"}
+- "go to leaderboard" → {"navigate": true, "page": "pasco-features", "tab": "leaderboard", "message": "Let's see the rankings!"}
+- "start focus timer" → {"navigate": true, "page": "pasco-features", "tab": "focus-timer", "message": "Starting the Focus Timer for productive study!"}
+- "show analytics" → {"navigate": true, "page": "pasco-features", "tab": "advanced-analytics", "message": "Opening your Advanced Analytics!"}
+- "check readiness score" → {"navigate": true, "page": "pasco-features", "tab": "readiness-score", "message": "Let's check your exam readiness!"}
 
 For NON-navigation questions, respond normally with helpful text.
 
@@ -377,8 +411,7 @@ export function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
   const handleNavigationComplete = () => {
     if (pendingNavigation) {
       const userStage = localStorage.getItem('userStage') || 'upsc';
-      const userStudentType = localStorage.getItem('userStudentType') || 'social-learner';
-      const basePath = `/${userStage}/${userStudentType}/student`;
+      const basePath = `/${userStage}/student`;
 
       const { page, tab, highlightClass } = pendingNavigation;
 

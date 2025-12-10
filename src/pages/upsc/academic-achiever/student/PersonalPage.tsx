@@ -69,16 +69,7 @@ const PersonalPage: React.FC = () => {
 
   const getColorClasses = (color: string, isActive: boolean) => {
     if (isActive) {
-      switch (color) {
-        case 'blue':
-          return 'bg-blue-500 text-white';
-        case 'purple':
-          return 'bg-purple-500 text-white';
-        case 'green':
-          return 'bg-green-500 text-white';
-        default:
-          return 'bg-brand-primary text-white';
-      }
+      return 'bg-brand-primary text-white';
     }
     return 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200';
   };
