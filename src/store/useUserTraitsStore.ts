@@ -101,12 +101,11 @@ export const useUserTraitsStore = create<UserTraitsState>()(
 
       getEnabledFeatures: () => {
         const { traits, manuallyEnabled, manuallyDisabled } = get();
-        const MIN_FEATURES = 4;
+        const INITIAL_FEATURE_COUNT = 5;
 
         // Calculate how well each feature matches the user's traits
         const featureScores = FEATURE_REGISTRY.map(feature => {
           let totalScore = 0;
-          let metCount = 0;
 
           feature.requiredTraits.forEach(req => {
             const traitValue = traits[req.trait as TraitKey] ?? DEFAULT_TRAIT_VALUES[req.trait as TraitKey] ?? 0.5;
@@ -120,7 +119,6 @@ export const useUserTraitsStore = create<UserTraitsState>()(
             }
 
             if (isMet) {
-              metCount++;
               totalScore += 1;
             } else {
               // Partial score based on how close they are
@@ -129,42 +127,31 @@ export const useUserTraitsStore = create<UserTraitsState>()(
             }
           });
 
-          const allMet = metCount === feature.requiredTraits.length;
           const avgScore = feature.requiredTraits.length > 0
             ? totalScore / feature.requiredTraits.length
             : 1;
 
-          return { feature, allMet, avgScore };
+          return { feature, avgScore };
         });
 
-        // Get features that fully meet requirements (not manually disabled)
-        const fullyEnabled = featureScores
-          .filter(f => f.allMet && !manuallyDisabled.includes(f.feature.id))
+        // Sort by score (best matches first), excluding manually disabled
+        const sortedFeatures = featureScores
+          .filter(f => !manuallyDisabled.includes(f.feature.id))
+          .sort((a, b) => b.avgScore - a.avgScore);
+
+        // Take top 5 as initial set
+        const initialFeatures = sortedFeatures
+          .slice(0, INITIAL_FEATURE_COUNT)
           .map(f => f.feature);
 
-        // Add manually enabled features
+        // Add manually enabled features (user can expand beyond 5)
         const manuallyEnabledFeatures = FEATURE_REGISTRY.filter(
           f => manuallyEnabled.includes(f.id) && !manuallyDisabled.includes(f.id)
         );
 
         // Combine and deduplicate
-        const enabledSet = new Set([...fullyEnabled, ...manuallyEnabledFeatures]);
-        let enabled = Array.from(enabledSet);
-
-        // If we have enough, return them
-        if (enabled.length >= MIN_FEATURES) {
-          return enabled;
-        }
-
-        // Otherwise, add more features sorted by how close they are to meeting requirements
-        const notYetEnabled = featureScores
-          .filter(f => !enabled.some(e => e.id === f.feature.id) && !manuallyDisabled.includes(f.feature.id))
-          .sort((a, b) => b.avgScore - a.avgScore);
-
-        const needed = MIN_FEATURES - enabled.length;
-        const additional = notYetEnabled.slice(0, needed).map(f => f.feature);
-
-        return [...enabled, ...additional];
+        const enabledSet = new Set([...initialFeatures, ...manuallyEnabledFeatures]);
+        return Array.from(enabledSet);
       },
 
       isFeatureEnabled: (featureId) => {
