@@ -210,9 +210,8 @@ export function generatePersonalityReview(traits: UserTraits): PersonalityReview
   // Sort by value descending to find strengths
   const sortedByValue = [...traitEntries].sort((a, b) => b[1] - a[1]);
 
-  // Top 5 strengths (traits >= 0.7)
+  // Top 5 strengths (highest scoring traits)
   const strengths = sortedByValue
-    .filter(([_, value]) => value >= 0.7)
     .slice(0, 5)
     .map(([trait, value]) => ({
       trait,
@@ -220,11 +219,10 @@ export function generatePersonalityReview(traits: UserTraits): PersonalityReview
       description: TRAIT_DEFINITIONS[trait]?.highLabel || ''
     }));
 
-  // Areas to improve (traits < 0.4)
-  const areasToImprove = sortedByValue
-    .filter(([_, value]) => value < 0.4)
-    .slice(-5)
+  // Bottom 5 traits as areas to improve (lowest scoring traits)
+  const areasToImprove = [...sortedByValue]
     .reverse()
+    .slice(0, 5)
     .map(([trait, value]) => ({
       trait,
       value,
