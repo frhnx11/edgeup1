@@ -5,9 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { NavigationOverlay } from './NavigationOverlay';
 import { ReviewClassesPopup } from './ReviewClassesPopup';
 
-// Gemini API configuration
-const GEMINI_API_KEY = 'AIzaSyCe2OJr78MXyIqP7HDXCooyi-LBfo5PpPc';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+// OpenAI API configuration
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
+const OPENAI_MODEL = import.meta.env.VITE_OPENAI_MODEL || 'gpt-4';
 
 // Navigation map for the AI agent
 const NAVIGATION_MAP = {
@@ -214,49 +214,48 @@ Guidelines for non-navigation responses:
 - If you don't know something, be honest about it
 - Focus on UPSC-relevant information when applicable`;
 
-// Call Gemini API
-async function callGemini(messages: Message[], userMessage: string): Promise<string> {
-  // Build conversation history for Gemini
-  const contents = messages
-    .filter(msg => !msg.isError)
-    .map(msg => ({
-      role: msg.sender === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.text }]
-    }));
+// Call OpenAI API
+async function callOpenAI(messages: Message[], userMessage: string): Promise<string> {
+  if (!OPENAI_API_KEY) {
+    throw new Error('OpenAI API key is not configured. Please add VITE_OPENAI_API_KEY to your .env file.');
+  }
 
-  // Add the new user message
-  contents.push({
-    role: 'user',
-    parts: [{ text: userMessage }]
-  });
+  // Build conversation history for OpenAI
+  const chatMessages = [
+    { role: 'system', content: SYSTEM_PROMPT },
+    ...messages
+      .filter(msg => !msg.isError)
+      .map(msg => ({
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.text
+      })),
+    { role: 'user', content: userMessage }
+  ];
 
-  const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'Authorization': `Bearer ${OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
-      contents,
-      systemInstruction: {
-        parts: [{ text: SYSTEM_PROMPT }]
-      },
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 800,
-      }
+      model: OPENAI_MODEL,
+      messages: chatMessages,
+      temperature: 0.7,
+      max_tokens: 800,
     })
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error?.message || 'Gemini API error');
+    throw new Error(error.error?.message || 'OpenAI API error');
   }
 
   const data = await response.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not generate a response.';
+  return data.choices?.[0]?.message?.content || 'Sorry, I could not generate a response.';
 }
 
-// Parse navigation response from Gemini
+// Parse navigation response from OpenAI
 function parseNavigationResponse(response: string): NavigationResult | null {
   try {
     // Try to parse as JSON first
@@ -527,7 +526,7 @@ export function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
     const userText = inputValue.trim();
     setInputValue('');
 
-    // Check for hardcoded test query - intercept before Gemini API
+    // Check for hardcoded test query - intercept before OpenAI API
     const testQueryPatterns = ['when is my next test', 'my next test', 'upcoming test', 'next test'];
     const isTestQuery = testQueryPatterns.some(p => userText.toLowerCase().includes(p));
 
@@ -547,7 +546,7 @@ export function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
         setShowNavOverlay(true);
       }, 1000);
 
-      return; // Don't call Gemini API
+      return; // Don't call OpenAI API
     }
 
     // Check for review classes query
@@ -564,14 +563,14 @@ export function ChatPopup({ isOpen, onClose }: ChatPopupProps) {
         setShowReviewPopup(true);
       }, 1000);
 
-      return; // Don't call Gemini API
+      return; // Don't call OpenAI API
     }
 
     setIsLoading(true);
 
     try {
-      // Call Gemini API
-      const response = await callGemini(messages, userText);
+      // Call OpenAI API
+      const response = await callOpenAI(messages, userText);
 
       // Check if this is a navigation response
       const navResult = parseNavigationResponse(response);

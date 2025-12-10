@@ -30,8 +30,8 @@ interface Message {
 }
 
 interface ChatSettings {
-  model: 'gpt-4' | 'gpt-3.5-turbo' | 'claude-3-opus';
-  provider: 'openai' | 'anthropic';
+  model: 'gpt-4' | 'gpt-3.5-turbo' | 'gpt-4-turbo';
+  provider: 'openai';
   temperature: number;
   maxTokens: number;
   enableVision: boolean;
@@ -557,14 +557,9 @@ Guidelines:
               {/* AI Provider */}
               <div>
                 <label className="block text-sm font-medium mb-2">AI Provider</label>
-                <select
-                  value={settings.provider}
-                  onChange={(e) => setSettings(prev => ({ ...prev, provider: e.target.value as any }))}
-                  className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                >
-                  <option value="openai">OpenAI</option>
-                  <option value="anthropic">Anthropic (Claude)</option>
-                </select>
+                <div className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 bg-gray-100 text-gray-700">
+                  OpenAI
+                </div>
               </div>
 
               {/* Model */}
@@ -576,8 +571,8 @@ Guidelines:
                   className="w-full p-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                 >
                   <option value="gpt-4">GPT-4</option>
+                  <option value="gpt-4-turbo">GPT-4 Turbo</option>
                   <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                  <option value="claude-3-opus">Claude 3 Opus</option>
                 </select>
               </div>
 
