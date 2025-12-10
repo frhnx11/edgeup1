@@ -81,8 +81,12 @@ export const useUserTraitsStore = create<UserTraitsState>()(
       manuallyDisabled: [],
 
       setTraits: (traits) => set({
+        // Clear all previous data and set fresh traits
         traits,
-        quizCompletedAt: new Date().toISOString()
+        personalityReview: null,
+        quizCompletedAt: new Date().toISOString(),
+        manuallyEnabled: [],
+        manuallyDisabled: []
       }),
 
       setTrait: (trait, value) => set((state) => ({

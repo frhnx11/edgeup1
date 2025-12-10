@@ -8,6 +8,10 @@ export function QuizPage() {
   const { setTraits, setPersonalityReview } = useUserTraitsStore();
 
   const handleComplete = (archetype: string, rawScores?: Record<string, number>) => {
+    // Clear all previous cached data for fresh start
+    localStorage.removeItem('goalData');
+    localStorage.removeItem('user-traits-storage');
+
     // Always set stage as UPSC
     localStorage.setItem('userStage', 'upsc');
 
